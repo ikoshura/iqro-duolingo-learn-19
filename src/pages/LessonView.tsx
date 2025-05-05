@@ -174,7 +174,7 @@ const LessonView: React.FC = () => {
           )}
         </div>
       </main>
-      <Footer />
+      <Footer currentPage="Lessons" />
     </div>
   );
 };
