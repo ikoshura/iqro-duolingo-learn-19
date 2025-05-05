@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Exercise } from '../data/lessonData';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,13 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  // Reset state when exercise changes
+  useEffect(() => {
+    setSelectedOption(null);
+    setIsSubmitted(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
 
   const handleOptionSelect = (option: string) => {
     if (isSubmitted) return;
@@ -33,7 +40,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-6">
+    <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-6 dark:bg-gray-800 dark:text-gray-100">
       <h3 className="text-lg font-semibold mb-4">
         {exercise.instructions}
       </h3>
@@ -61,12 +68,12 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
             onClick={() => handleOptionSelect(option)}
             disabled={isSubmitted}
             className={cn(
-              "p-4 border rounded-lg text-center transition-all",
-              selectedOption === option && !isSubmitted && "border-primary bg-primary/5",
-              isSubmitted && selectedOption === option && isCorrect && "border-green-500 bg-green-50",
-              isSubmitted && selectedOption === option && !isCorrect && "border-red-500 bg-red-50",
-              isSubmitted && option === exercise.content.correctAnswer && "border-green-500 bg-green-50",
-              isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50"
+              "p-4 border rounded-lg text-center transition-all dark:border-gray-600",
+              selectedOption === option && !isSubmitted && "border-primary bg-primary/5 dark:bg-primary/10",
+              isSubmitted && selectedOption === option && isCorrect && "border-green-500 bg-green-50 dark:bg-green-900/20",
+              isSubmitted && selectedOption === option && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-900/20",
+              isSubmitted && option === exercise.content.correctAnswer && "border-green-500 bg-green-50 dark:bg-green-900/20",
+              isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
             )}
           >
             {/* Show Arabic font for selection exercises */}
@@ -96,8 +103,8 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
         className={cn(
           "w-full py-3 px-4 rounded-lg font-medium text-white transition-all",
           selectedOption && !isSubmitted 
-            ? "bg-primary hover:bg-primary/90" 
-            : "bg-gray-300 cursor-not-allowed"
+            ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80" 
+            : "bg-gray-300 cursor-not-allowed dark:bg-gray-600"
         )}
       >
         {isSubmitted ? (isCorrect ? "Correct!" : "Try again next time") : "Check"}

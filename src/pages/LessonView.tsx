@@ -28,8 +28,8 @@ const LessonView: React.FC = () => {
 
   if (!lesson) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <p className="text-xl mb-4">Lesson not found</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center">
+        <p className="text-xl mb-4 dark:text-gray-100">Lesson not found</p>
         <Button onClick={() => navigate('/lessons')}>Back to Lessons</Button>
       </div>
     );
@@ -45,8 +45,8 @@ const LessonView: React.FC = () => {
 
   if (!isUnlocked) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <p className="text-xl mb-4">This lesson is locked</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center">
+        <p className="text-xl mb-4 dark:text-gray-100">This lesson is locked</p>
         <Button onClick={() => navigate('/lessons')}>Back to Lessons</Button>
       </div>
     );
@@ -73,7 +73,7 @@ const LessonView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pattern-bg flex flex-col">
       <Header />
       <main className="flex-1 pb-20">
         <div className="container mx-auto px-4 py-6 mb-16">
@@ -81,22 +81,22 @@ const LessonView: React.FC = () => {
           <div className="flex items-center mb-6">
             <button
               onClick={() => navigate('/lessons')}
-              className="mr-4 p-2 hover:bg-gray-100 rounded-full"
+              className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 dark:text-gray-200" />
             </button>
-            <h1 className="text-2xl font-bold">{lesson.title}</h1>
+            <h1 className="text-2xl font-bold dark:text-gray-100">{lesson.title}</h1>
           </div>
 
           {/* Progress bar */}
           <div className="mb-6">
-            <div className="flex justify-between text-sm mb-1">
+            <div className="flex justify-between text-sm mb-1 dark:text-gray-300">
               <span>Progress</span>
               <span>
                 {currentExerciseIndex + 1} / {lesson.exercises.length}
               </span>
             </div>
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-500 ease-out"
                 style={{
@@ -117,10 +117,10 @@ const LessonView: React.FC = () => {
                 {lesson.letters.map((letter) => (
                   <div
                     key={letter.id}
-                    className="bg-white rounded-lg p-4 text-center shadow-sm"
+                    className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-sm"
                   >
-                    <p className="font-arabic text-4xl mb-2">{letter.arabic}</p>
-                    <p className="text-sm text-gray-600">{letter.transliteration}</p>
+                    <p className="font-arabic text-4xl mb-2 dark:text-gray-100">{letter.arabic}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{letter.transliteration}</p>
                   </div>
                 ))}
               </div>
@@ -129,6 +129,7 @@ const LessonView: React.FC = () => {
               <div className="mb-6">
                 {currentExercise && (
                   <LetterExercise
+                    key={`exercise-${currentExerciseIndex}`}
                     exercise={currentExercise}
                     onComplete={handleExerciseComplete}
                   />
@@ -137,14 +138,14 @@ const LessonView: React.FC = () => {
             </>
           ) : (
             /* Lesson completed screen */
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center">
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <Award className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                  <Award className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold mb-2">Lesson Completed!</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="text-2xl font-bold mb-2 dark:text-gray-100">Lesson Completed!</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Congratulations! You've earned {lesson.xpReward} XP
               </p>
               <div className="flex flex-col md:flex-row justify-center gap-4">
