@@ -3,23 +3,29 @@ import React from 'react';
 import { Lesson } from '../data/lessonData';
 import { Clock, Award, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface LessonCardProps {
   lesson: Lesson;
   isCompleted: boolean;
-  onClick: () => void;
 }
 
 const LessonCard: React.FC<LessonCardProps> = ({ 
   lesson, 
-  isCompleted,
-  onClick 
+  isCompleted
 }) => {
+  const navigate = useNavigate();
   const { title, description, duration, xpReward, isUnlocked } = lesson;
+
+  const handleClick = () => {
+    if (isUnlocked) {
+      navigate(`/lesson/${lesson.id}`);
+    }
+  };
 
   return (
     <div
-      onClick={isUnlocked ? onClick : undefined}
+      onClick={handleClick}
       className={cn(
         "border rounded-lg overflow-hidden transition-all duration-200",
         isUnlocked

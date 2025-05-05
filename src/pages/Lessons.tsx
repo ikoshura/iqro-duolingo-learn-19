@@ -43,7 +43,6 @@ const Lessons: React.FC = () => {
                     ) || lesson.id === 'lesson-1'
                   }}
                   isCompleted={userStats.completedLessons.includes(lesson.id)}
-                  onClick={() => {}}
                 />
               ))}
             </div>

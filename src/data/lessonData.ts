@@ -70,6 +70,26 @@ export const lessons: Lesson[] = [
           options: ['ا', 'ب', 'ت'],
           correctAnswer: 'ب'
         }
+      },
+      {
+        id: 'ex-3',
+        type: 'match',
+        instructions: 'Match the letter with its name',
+        content: {
+          question: 'ب',
+          options: ['Alif', 'Ba', 'Ta'],
+          correctAnswer: 'Ba'
+        }
+      },
+      {
+        id: 'ex-4',
+        type: 'selection',
+        instructions: 'Select the Alif letter',
+        content: {
+          question: 'Which one is Alif?',
+          options: ['ا', 'ب', 'ت'],
+          correctAnswer: 'ا'
+        }
       }
     ],
     isUnlocked: true
@@ -113,6 +133,26 @@ export const lessons: Lesson[] = [
           options: ['ت', 'ث', 'ج'],
           correctAnswer: 'ث'
         }
+      },
+      {
+        id: 'ex-5',
+        type: 'match',
+        instructions: 'Match the letter with its name',
+        content: {
+          question: 'ث',
+          options: ['Ta', 'Tha', 'Jim'],
+          correctAnswer: 'Tha'
+        }
+      },
+      {
+        id: 'ex-6',
+        type: 'selection',
+        instructions: 'Select the Ta letter',
+        content: {
+          question: 'Which one is Ta?',
+          options: ['ت', 'ث', 'ج'],
+          correctAnswer: 'ت'
+        }
       }
     ],
     isUnlocked: false
@@ -138,7 +178,7 @@ export const lessons: Lesson[] = [
     ],
     exercises: [
       {
-        id: 'ex-5',
+        id: 'ex-7',
         type: 'match',
         instructions: 'Match the Arabic letter with its name',
         content: {
@@ -148,13 +188,33 @@ export const lessons: Lesson[] = [
         }
       },
       {
-        id: 'ex-6',
+        id: 'ex-8',
         type: 'selection',
         instructions: 'Select the Ha letter',
         content: {
           question: 'Which one is Ha?',
           options: ['ج', 'ح', 'خ'],
           correctAnswer: 'ح'
+        }
+      },
+      {
+        id: 'ex-9',
+        type: 'match',
+        instructions: 'Match the letter with its name',
+        content: {
+          question: 'ح',
+          options: ['Jim', 'Ha', 'Kha'],
+          correctAnswer: 'Ha'
+        }
+      },
+      {
+        id: 'ex-10',
+        type: 'selection',
+        instructions: 'Select the Jim letter',
+        content: {
+          question: 'Which one is Jim?',
+          options: ['ج', 'ح', 'خ'],
+          correctAnswer: 'ج'
         }
       }
     ],
@@ -201,7 +261,7 @@ export const lessons: Lesson[] = [
     ],
     exercises: [
       {
-        id: 'ex-7',
+        id: 'ex-11',
         type: 'selection',
         instructions: 'Select the correct letter',
         content: {
@@ -211,13 +271,43 @@ export const lessons: Lesson[] = [
         }
       },
       {
-        id: 'ex-8',
+        id: 'ex-12',
         type: 'match',
         instructions: 'Match letters to their names',
         content: {
-          question: 'Match ج',
+          question: 'ج',
           options: ['Alif', 'Ba', 'Jim'],
           correctAnswer: 'Jim'
+        }
+      },
+      {
+        id: 'ex-13',
+        type: 'selection',
+        instructions: 'Select the correct letter',
+        content: {
+          question: 'Which letter is Ta?',
+          options: ['ت', 'ث', 'ج'],
+          correctAnswer: 'ت'
+        }
+      },
+      {
+        id: 'ex-14',
+        type: 'match',
+        instructions: 'Match letters to their names',
+        content: {
+          question: 'ح',
+          options: ['Ta', 'Tha', 'Ha'],
+          correctAnswer: 'Ha'
+        }
+      },
+      {
+        id: 'ex-15',
+        type: 'selection',
+        instructions: 'Select the correct letter',
+        content: {
+          question: 'Which letter is Tha?',
+          options: ['ت', 'ث', 'ح'],
+          correctAnswer: 'ث'
         }
       }
     ],

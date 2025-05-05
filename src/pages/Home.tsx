@@ -28,7 +28,6 @@ const Home: React.FC = () => {
                     ) || lesson.id === 'lesson-1'
                   }}
                   isCompleted={userStats.completedLessons.includes(lesson.id)}
-                  onClick={() => {}}
                 />
               ))}
             </div>
@@ -47,7 +46,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <Footer currentPage="Home" />
     </div>
   );
 };
