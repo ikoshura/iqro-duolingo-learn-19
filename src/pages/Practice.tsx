@@ -51,7 +51,7 @@ const PracticeCard: React.FC<{
 }> = ({ exercise, onClick }) => {
   return (
     <div 
-      className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-primary/30 transition-all cursor-pointer"
+      className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-primary/30 transition-all cursor-pointer bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700"
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-2">
@@ -75,7 +75,7 @@ const Practice: React.FC = () => {
   const { userStats } = useUser();
 
   return (
-    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col">
+    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <Header />
       <main className="flex-1 pb-20">
         <div className="container mx-auto px-4 py-6 mb-16">
@@ -84,7 +84,7 @@ const Practice: React.FC = () => {
             <h1 className="text-2xl font-bold">Daily Practice</h1>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm mb-6 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold mb-2">Today's Goal</h2>
             <div className="flex justify-between text-sm mb-1">
               <span>Progress: {userStats.dailyProgress}/{userStats.dailyGoal} XP</span>

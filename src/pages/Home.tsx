@@ -11,7 +11,7 @@ const Home: React.FC = () => {
   const { userStats } = useUser();
   
   return (
-    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col">
+    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <Header />
       <main className="flex-1 pb-20">
         <div className="container mx-auto px-4 py-6 mb-16">

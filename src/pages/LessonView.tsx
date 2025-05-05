@@ -112,18 +112,7 @@ const LessonView: React.FC = () => {
 
           {!isCompleted ? (
             <>
-              {/* Letters display */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                {lesson.letters.map((letter) => (
-                  <div
-                    key={letter.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-sm"
-                  >
-                    <p className="font-arabic text-4xl mb-2 dark:text-gray-100">{letter.arabic}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{letter.transliteration}</p>
-                  </div>
-                ))}
-              </div>
+
 
               {/* Exercise */}
               <div className="mb-6">

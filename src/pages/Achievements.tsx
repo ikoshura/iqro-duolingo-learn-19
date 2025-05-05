@@ -76,10 +76,10 @@ const AchievementCard: React.FC<{
   const IconComponent = achievement.icon;
   
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-4">
         <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
-          achievement.unlocked ? 'bg-primary/20' : 'bg-gray-100'
+          achievement.unlocked ? 'bg-primary/20' : 'bg-gray-100 bg-white dark:bg-gray-700 shadow-sm border-b border-gray-200 dark:border-gray-600'
         }`}>
           <IconComponent className={`h-6 w-6 ${
             achievement.unlocked ? 'text-primary' : 'text-gray-400'
@@ -119,7 +119,7 @@ const Achievements: React.FC = () => {
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col">
+    <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <Header />
       <main className="flex-1 pb-20">
         <div className="container mx-auto px-4 py-6 mb-16">
@@ -128,7 +128,7 @@ const Achievements: React.FC = () => {
             <h1 className="text-2xl font-bold">Achievements</h1>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm mb-6 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold mb-2">Your Badges</h2>
             <div className="flex justify-between items-center">
               <p className="text-gray-600">You've unlocked {unlockedCount} of {achievements.length} achievements</p>

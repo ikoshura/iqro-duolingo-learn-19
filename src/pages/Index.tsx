@@ -17,7 +17,7 @@ const Index: React.FC = () => {
   }, [navigate, userStats]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+    <div className="min-h-screen bg-gray-50 flex justify-center items-center bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <p>Redirecting...</p>
     </div>
   );
