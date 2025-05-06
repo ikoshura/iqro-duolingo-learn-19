@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Exercise } from '../data/lessonData';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LetterExerciseProps {
   exercise: Exercise;
@@ -13,6 +15,8 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const { t } = useLanguage();
 
   // Reset state when exercise changes
   useEffect(() => {
@@ -39,17 +43,67 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     }, 1500);
   };
 
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Try to set Arabic language
+      utterance.lang = 'ar-SA';
+      
+      // Check if there are Arabic voices available
+      const voices = window.speechSynthesis.getVoices();
+      const arabicVoice = voices.find(voice => voice.lang.includes('ar'));
+      if (arabicVoice) {
+        utterance.voice = arabicVoice;
+      }
+      
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Content to be spoken
+  let contentToSpeak = '';
+  if (exercise.type === 'match') {
+    contentToSpeak = exercise.content.question;
+  } else if (exercise.type === 'selection' && selectedOption) {
+    contentToSpeak = selectedOption;
+  } else if (exercise.type === 'selection' && exercise.content.correctAnswer) {
+    contentToSpeak = exercise.content.correctAnswer;
+  }
+
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-6 dark:bg-gray-800 dark:text-gray-100">
       <h3 className="text-lg font-semibold mb-4">
         {exercise.instructions}
       </h3>
       
-      {/* Question display */}
+      {/* Question display with speech button */}
       <div className="mb-6">
         {exercise.type === 'match' && (
-          <div className="text-center font-arabic text-5xl mb-4">
-            {exercise.content.question}
+          <div className="flex items-center justify-center gap-3">
+            <div className="text-center font-arabic text-5xl">
+              {exercise.content.question}
+            </div>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full"
+              onClick={() => speakText(exercise.content.question)}
+              disabled={isSpeaking}
+            >
+              <Volume2 className={cn(
+                "h-5 w-5", 
+                isSpeaking ? "text-primary animate-pulse" : "text-gray-500"
+              )} />
+              <span className="sr-only">{t('speak')}</span>
+            </Button>
           </div>
         )}
         
@@ -76,23 +130,45 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
               isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
             )}
           >
-            {/* Show Arabic font for selection exercises */}
-            {exercise.type === 'selection' ? (
-              <span className="font-arabic text-3xl">{option}</span>
-            ) : (
-              <span className="text-lg">{option}</span>
-            )}
-            
-            {/* Show correct/incorrect icon */}
-            {isSubmitted && selectedOption === option && (
-              <span className="ml-2 inline-flex">
-                {isCorrect ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                ) : (
-                  <XCircle className="h-5 w-5 text-red-500" />
-                )}
-              </span>
-            )}
+            <div className="flex items-center justify-center gap-3">
+              {/* Show Arabic font for selection exercises */}
+              {exercise.type === 'selection' ? (
+                <span className="font-arabic text-3xl">{option}</span>
+              ) : (
+                <span className="text-lg">{option}</span>
+              )}
+              
+              {/* Speech button for options in selection exercises */}
+              {exercise.type === 'selection' && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="rounded-full h-8 w-8"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    speakText(option);
+                  }}
+                  disabled={isSpeaking}
+                >
+                  <Volume2 className={cn(
+                    "h-4 w-4", 
+                    isSpeaking && selectedOption === option ? "text-primary animate-pulse" : "text-gray-500"
+                  )} />
+                  <span className="sr-only">{t('speak')}</span>
+                </Button>
+              )}
+              
+              {/* Show correct/incorrect icon */}
+              {isSubmitted && selectedOption === option && (
+                <span className="inline-flex">
+                  {isCorrect ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-500" />
+                  )}
+                </span>
+              )}
+            </div>
           </button>
         ))}
       </div>

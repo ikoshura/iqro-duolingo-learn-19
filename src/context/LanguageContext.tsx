@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'en' | 'id';
@@ -24,7 +23,8 @@ const translations: Record<string, Record<Language, string>> = {
   'of': { en: 'of', id: 'dari' },
   'lessons_completed': { en: 'lessons completed', id: 'pelajaran selesai' },
   'iqro': { en: 'Iqro', id: 'Iqro' },
-  'language': { en: 'Language', id: 'Bahasa' }
+  'language': { en: 'Language', id: 'Bahasa' },
+  'speak': { en: 'Speak', id: 'Ucapkan' }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
