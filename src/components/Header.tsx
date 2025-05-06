@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { ThemeToggle } from './ThemeToggle';
 import { Book, Flame } from 'lucide-react';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../context/LanguageContext';
 
 const Header: React.FC = () => {
   const { userStats } = useUser();
+  const { t } = useLanguage();
   
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -21,6 +24,7 @@ const Header: React.FC = () => {
             <div className="text-sm font-medium">✨ {userStats.xp} XP</div>
             <div className="text-sm font-medium">🔥 {userStats.streak} day streak</div>
           </div>
+          <LanguageToggle />
           <ThemeToggle />
         </div>
       </div>

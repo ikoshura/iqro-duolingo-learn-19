@@ -27,10 +27,12 @@ export interface Lesson {
   letters: Letter[];
   exercises: Exercise[];
   isUnlocked: boolean;
+  iqroLevel: number;
 }
 
-// Sample data for Volume 1 of Iqro method
+// Sample data for Iqro method organized into 6 levels
 export const lessons: Lesson[] = [
+  // IQRO LEVEL 1
   {
     id: 'lesson-1',
     title: 'Introduction to Alif and Ba',
@@ -92,7 +94,8 @@ export const lessons: Lesson[] = [
         }
       }
     ],
-    isUnlocked: true
+    isUnlocked: true,
+    iqroLevel: 1
   },
   {
     id: 'lesson-2',
@@ -155,162 +158,237 @@ export const lessons: Lesson[] = [
         }
       }
     ],
-    isUnlocked: false
+    isUnlocked: false,
+    iqroLevel: 1
   },
+  
+  // IQRO LEVEL 2
   {
     id: 'lesson-3',
-    title: 'Jim and Ha',
-    description: 'Learn the next two letters of the Arabic alphabet',
-    level: 1,
+    title: 'Connected Letters: Alif-Ba',
+    description: 'Learn how to connect Arabic letters with Fathah',
+    level: 2,
     xpReward: 15,
     duration: '7 min',
     letters: [
       {
-        id: 'jim',
-        arabic: 'ج',
-        transliteration: 'Jim',
+        id: 'alif-ba',
+        arabic: 'اَبَ',
+        transliteration: 'Aba',
       },
       {
-        id: 'ha',
-        arabic: 'ح',
-        transliteration: 'Ha',
+        id: 'ba-ta',
+        arabic: 'بَتَ',
+        transliteration: 'Bata',
       }
     ],
     exercises: [
       {
         id: 'ex-7',
         type: 'match',
-        instructions: 'Match the Arabic letter with its name',
+        instructions: 'Match the connected letters with their pronunciation',
         content: {
-          question: 'ج',
-          options: ['Jim', 'Ha', 'Kha'],
-          correctAnswer: 'Jim'
+          question: 'اَبَ',
+          options: ['Aba', 'Ata', 'Atha'],
+          correctAnswer: 'Aba'
         }
       },
       {
         id: 'ex-8',
         type: 'selection',
-        instructions: 'Select the Ha letter',
+        instructions: 'Select the correct connected letters',
         content: {
-          question: 'Which one is Ha?',
-          options: ['ج', 'ح', 'خ'],
-          correctAnswer: 'ح'
+          question: 'Which one is Bata?',
+          options: ['اَبَ', 'بَتَ', 'تَثَ'],
+          correctAnswer: 'بَتَ'
         }
+      }
+    ],
+    isUnlocked: false,
+    iqroLevel: 2
+  },
+  
+  // IQRO LEVEL 3
+  {
+    id: 'lesson-4',
+    title: 'Kasrah Introduction',
+    description: 'Learn the Kasrah vowel sound',
+    level: 1,
+    xpReward: 15,
+    duration: '8 min',
+    letters: [
+      {
+        id: 'alif-kasrah',
+        arabic: 'اِ',
+        transliteration: 'i',
       },
+      {
+        id: 'ba-kasrah',
+        arabic: 'بِ',
+        transliteration: 'bi',
+      }
+    ],
+    exercises: [
       {
         id: 'ex-9',
         type: 'match',
-        instructions: 'Match the letter with its name',
+        instructions: 'Match the letter with Kasrah to its pronunciation',
         content: {
-          question: 'ح',
-          options: ['Jim', 'Ha', 'Kha'],
-          correctAnswer: 'Ha'
+          question: 'اِ',
+          options: ['a', 'i', 'u'],
+          correctAnswer: 'i'
         }
       },
       {
         id: 'ex-10',
         type: 'selection',
-        instructions: 'Select the Jim letter',
+        instructions: 'Select the letter with Kasrah',
         content: {
-          question: 'Which one is Jim?',
-          options: ['ج', 'ح', 'خ'],
-          correctAnswer: 'ج'
+          question: 'Which one is pronounced as "bi"?',
+          options: ['بَ', 'بِ', 'بُ'],
+          correctAnswer: 'بِ'
         }
       }
     ],
-    isUnlocked: false
+    isUnlocked: false,
+    iqroLevel: 3
   },
+  
+  // IQRO LEVEL 4
   {
-    id: 'lesson-4',
-    title: 'Review: Alif to Ha',
-    description: 'Review all the letters you have learned so far',
-    level: 1,
+    id: 'lesson-5',
+    title: 'Tanwin Introduction',
+    description: 'Learn the Tanwin sounds in Arabic',
+    level: 2,
     xpReward: 20,
     duration: '10 min',
     letters: [
       {
-        id: 'alif',
-        arabic: 'ا',
-        transliteration: 'Alif',
+        id: 'ba-fathah-tanwin',
+        arabic: 'بً',
+        transliteration: 'ban',
       },
       {
-        id: 'ba',
-        arabic: 'ب',
-        transliteration: 'Ba',
-      },
-      {
-        id: 'ta',
-        arabic: 'ت',
-        transliteration: 'Ta',
-      },
-      {
-        id: 'tha',
-        arabic: 'ث',
-        transliteration: 'Tha',
-      },
-      {
-        id: 'jim',
-        arabic: 'ج',
-        transliteration: 'Jim',
-      },
-      {
-        id: 'ha',
-        arabic: 'ح',
-        transliteration: 'Ha',
+        id: 'ba-kasrah-tanwin',
+        arabic: 'بٍ',
+        transliteration: 'bin',
       }
     ],
     exercises: [
       {
         id: 'ex-11',
-        type: 'selection',
-        instructions: 'Select the correct letter',
+        type: 'match',
+        instructions: 'Match the Tanwin letter with its pronunciation',
         content: {
-          question: 'Which letter is Ba?',
-          options: ['ا', 'ب', 'ت'],
-          correctAnswer: 'ب'
+          question: 'بً',
+          options: ['ban', 'bin', 'bun'],
+          correctAnswer: 'ban'
         }
       },
       {
         id: 'ex-12',
-        type: 'match',
-        instructions: 'Match letters to their names',
+        type: 'selection',
+        instructions: 'Select the letter with Kasrah Tanwin',
         content: {
-          question: 'ج',
-          options: ['Alif', 'Ba', 'Jim'],
-          correctAnswer: 'Jim'
+          question: 'Which one is pronounced as "bin"?',
+          options: ['بً', 'بٍ', 'بٌ'],
+          correctAnswer: 'بٍ'
         }
+      }
+    ],
+    isUnlocked: false,
+    iqroLevel: 4
+  },
+  
+  // IQRO LEVEL 5
+  {
+    id: 'lesson-6',
+    title: 'Alif Lam Introduction',
+    description: 'Learn the Alif Lam rules in Arabic',
+    level: 3,
+    xpReward: 25,
+    duration: '12 min',
+    letters: [
+      {
+        id: 'alif-lam-qamariyah',
+        arabic: 'اَلْقَمَرُ',
+        transliteration: 'al-qamaru',
       },
       {
+        id: 'alif-lam-shamsiyah',
+        arabic: 'اَلشَّمْسُ',
+        transliteration: 'ash-shamsu',
+      }
+    ],
+    exercises: [
+      {
         id: 'ex-13',
-        type: 'selection',
-        instructions: 'Select the correct letter',
+        type: 'match',
+        instructions: 'Match the word with its transliteration',
         content: {
-          question: 'Which letter is Ta?',
-          options: ['ت', 'ث', 'ج'],
-          correctAnswer: 'ت'
+          question: 'اَلْقَمَرُ',
+          options: ['al-qamaru', 'ash-shamsu', 'al-kitabu'],
+          correctAnswer: 'al-qamaru'
         }
       },
       {
         id: 'ex-14',
-        type: 'match',
-        instructions: 'Match letters to their names',
-        content: {
-          question: 'ح',
-          options: ['Ta', 'Tha', 'Ha'],
-          correctAnswer: 'Ha'
-        }
-      },
-      {
-        id: 'ex-15',
         type: 'selection',
-        instructions: 'Select the correct letter',
+        instructions: 'Select the word with Alif Lam Shamsiyah',
         content: {
-          question: 'Which letter is Tha?',
-          options: ['ت', 'ث', 'ح'],
-          correctAnswer: 'ث'
+          question: 'Which one has Alif Lam Shamsiyah?',
+          options: ['اَلْقَمَرُ', 'اَلشَّمْسُ', 'اَلْكِتَابُ'],
+          correctAnswer: 'اَلشَّمْسُ'
         }
       }
     ],
-    isUnlocked: false
+    isUnlocked: false,
+    iqroLevel: 5
+  },
+  
+  // IQRO LEVEL 6
+  {
+    id: 'lesson-7',
+    title: 'Advanced Tajweed Rules',
+    description: 'Learn more complex Tajweed rules for Quranic reading',
+    level: 3,
+    xpReward: 30,
+    duration: '15 min',
+    letters: [
+      {
+        id: 'idgham-bigunnah',
+        arabic: 'مَنْ يَعْمَلْ',
+        transliteration: 'may ya\'mal',
+      },
+      {
+        id: 'idgham-bilaghunnah',
+        arabic: 'مِنْ رَّبِّهِمْ',
+        transliteration: 'mir rabbihim',
+      }
+    ],
+    exercises: [
+      {
+        id: 'ex-15',
+        type: 'match',
+        instructions: 'Match the phrase with its correct reading rule',
+        content: {
+          question: 'مَنْ يَعْمَلْ',
+          options: ['Idgham Bigunnah', 'Idgham Bilaghunnah', 'Izhar'],
+          correctAnswer: 'Idgham Bigunnah'
+        }
+      },
+      {
+        id: 'ex-16',
+        type: 'selection',
+        instructions: 'Select the phrase with Idgham Bilaghunnah',
+        content: {
+          question: 'Which one has Idgham Bilaghunnah?',
+          options: ['مَنْ يَعْمَلْ', 'مِنْ رَّبِّهِمْ', 'مِنْ خَيْرٍ'],
+          correctAnswer: 'مِنْ رَّبِّهِمْ'
+        }
+      }
+    ],
+    isUnlocked: false,
+    iqroLevel: 6
   }
 ];
