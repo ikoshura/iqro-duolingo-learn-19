@@ -18,7 +18,8 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { t } = useLanguage();
 
-  // Reset state when exercise changes
+  // Reset state when exercise changes - using the exercise ID to track changes
+  // This is important to reset state when retrying an exercise
   useEffect(() => {
     setSelectedOption(null);
     setIsSubmitted(false);

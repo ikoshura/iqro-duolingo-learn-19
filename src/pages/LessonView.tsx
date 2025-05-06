@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
@@ -57,6 +56,48 @@ const LessonView: React.FC = () => {
       </div>
     );
   }
+
+  // Function to handle exercise completion
+  const handleExerciseComplete = (isCorrect: boolean, originalIndex?: number) => {
+    const newResults = [...exerciseResults];
+    
+    // If we're retrying an exercise, update its original index result
+    if (originalIndex !== undefined) {
+      newResults[originalIndex] = isCorrect;
+    } else {
+      newResults[currentExerciseIndex] = isCorrect;
+      
+      // If answer is incorrect and not already in the retry list
+      if (!isCorrect) {
+        setIncorrectExercises([...incorrectExercises, currentExerciseIndex]);
+        
+        // Show notification
+        toast({
+          title: "Incorrect Answer",
+          description: "You'll get another chance to answer this question at the end.",
+          className: "bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800/50"
+        });
+      }
+    }
+    
+    setExerciseResults(newResults);
+
+    // Move to next exercise after a delay
+    setTimeout(() => {
+      // Check if this is the last exercise (including retries)
+      const isLastExercise = currentExerciseIndex === lesson.exercises.length - 1 && incorrectExercises.length === 0;
+      const isLastRetryExercise = incorrectExercises.length > 0 && 
+                                currentExerciseIndex === lesson.exercises.length + incorrectExercises.length - 1;
+      
+      if (isLastExercise || isLastRetryExercise) {
+        setIsCompleted(true);
+        // Complete the lesson
+        completeLesson(lesson.id, lesson.xpReward);
+      } else {
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+      }
+    }, 1000);
+  };
 
   // Get the current exercise based on the current index and incorrect exercises
   let exercisePool = lesson.exercises; // Original exercises
@@ -117,7 +158,7 @@ const LessonView: React.FC = () => {
                     </p>
                   </div>
                   <LetterExercise
-                    key={`retry-exercise-${incorrectExerciseIndex}-${currentExerciseIndex}`}
+                    key={`retry-exercise-${incorrectExerciseIndex}-${incorrectIndex}`}
                     exercise={currentExercise}
                     onComplete={(isCorrect) => {
                       // If correct this time, update results
@@ -138,44 +179,6 @@ const LessonView: React.FC = () => {
   const isLastExercise = currentExerciseIndex === lesson.exercises.length - 1 && incorrectExercises.length === 0;
   const isLastRetryExercise = incorrectExercises.length > 0 && 
                               currentExerciseIndex === lesson.exercises.length + incorrectExercises.length - 1;
-  
-  // Function to handle exercise completion
-  const handleExerciseComplete = (isCorrect: boolean, originalIndex?: number) => {
-    const newResults = [...exerciseResults];
-    
-    // If we're retrying an exercise, update its original index result
-    if (originalIndex !== undefined) {
-      newResults[originalIndex] = isCorrect;
-    } else {
-      newResults[currentExerciseIndex] = isCorrect;
-      
-      // If answer is incorrect and not already in the retry list
-      if (!isCorrect) {
-        setIncorrectExercises([...incorrectExercises, currentExerciseIndex]);
-        
-        // Show notification
-        toast({
-          title: "Incorrect Answer",
-          description: "You'll get another chance to answer this question at the end.",
-          className: "bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800/50"
-        });
-      }
-    }
-    
-    setExerciseResults(newResults);
-
-    // Move to next exercise after a delay
-    setTimeout(() => {
-      // Check if this is the last exercise (including retries)
-      if (isLastExercise || isLastRetryExercise) {
-        setIsCompleted(true);
-        // Complete the lesson
-        completeLesson(lesson.id, lesson.xpReward);
-      } else {
-        setCurrentExerciseIndex(currentExerciseIndex + 1);
-      }
-    }, 1000);
-  };
 
   // Calculate performance metrics for the lesson completion screen
   const getPerformanceReview = () => {
