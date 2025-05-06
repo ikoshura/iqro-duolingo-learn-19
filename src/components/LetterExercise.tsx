@@ -24,7 +24,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCorrect(false);
-  }, [exercise.id]);
+  }, [exercise.id, exercise]); // Add exercise as dependency too for retry questions
 
   const handleOptionSelect = (option: string) => {
     if (isSubmitted) return;
@@ -38,10 +38,10 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setIsCorrect(correct);
     setIsSubmitted(true);
     
-    // Add a small delay to show feedback before moving to next exercise
+    // Reduce the delay to show feedback before moving to next exercise
     setTimeout(() => {
       onComplete(correct);
-    }, 1500);
+    }, 300); // Reduced from 1500ms to 300ms
   };
 
   const speakText = (text: string) => {
