@@ -7,10 +7,10 @@ const Index: React.FC = () => {
   const { userStats } = useUser();
 
   useEffect(() => {
-    // If user has no xp (assumed first-time or not logged in), redirect to sign in
+    // If user has no xp (assumed first-time or not logged in), redirect to landing page
     // Otherwise, redirect to home
     if (userStats.xp === 0 && userStats.completedLessons.length === 0) {
-      navigate('/signin');
+      navigate('/landing');
     } else {
       navigate('/home');
     }

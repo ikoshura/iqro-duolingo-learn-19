@@ -59,6 +59,31 @@ const SignIn: React.FC = () => {
     }, 1000);
   };
 
+  const handleGuestLogin = () => {
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      // Create guest user stats
+      updateUserStats({
+        xp: 0,
+        streak: 0,
+        level: 1,
+        completedLessons: [],
+        currentLesson: 'lesson-1',
+        dailyGoal: 50,
+        dailyProgress: 0,
+      });
+      
+      toast({
+        title: "Welcome, Guest!",
+        description: "You're using Iqro as a guest.",
+      });
+      
+      navigate('/home');
+      setIsLoading(false);
+    }, 800);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center pattern-bg bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="bg-white p-8 rounded-xl shadow-sm w-full max-w-md bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
@@ -111,6 +136,17 @@ const SignIn: React.FC = () => {
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
+
+        <div className="mt-6">
+          <Button
+            onClick={handleGuestLogin}
+            variant="outline"
+            className="w-full"
+            disabled={isLoading}
+          >
+            Login as Guest
+          </Button>
+        </div>
 
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-500">

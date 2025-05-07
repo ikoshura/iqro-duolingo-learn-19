@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import LessonView from "./pages/LessonView";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import Landing from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/landing" element={<Landing />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/lessons" element={<Lessons />} />
                 <Route path="/practice" element={<Practice />} />
