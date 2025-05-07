@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
@@ -31,6 +30,15 @@ const LessonView: React.FC = () => {
     setIncorrectExercises([]);
     setIsCompleted(false);
   }, [lessonId]);
+
+  // Add debugging logs to track exercise completion
+  useEffect(() => {
+    // Log whenever we're at the end of exercises
+    const totalExercises = lesson?.exercises.length || 0;
+    console.log('Current exercise index:', currentExerciseIndex);
+    console.log('Total exercises:', totalExercises);
+    console.log('Incorrect exercises:', incorrectExercises);
+  }, [currentExerciseIndex, incorrectExercises, lesson]);
 
   if (!lesson) {
     return (
@@ -70,7 +78,13 @@ const LessonView: React.FC = () => {
       
       // If answer is incorrect and not already in the retry list
       if (!isCorrect) {
-        setIncorrectExercises([...incorrectExercises, currentExerciseIndex]);
+        setIncorrectExercises(prev => {
+          // Only add to incorrectExercises if not already there
+          if (!prev.includes(currentExerciseIndex)) {
+            return [...prev, currentExerciseIndex];
+          }
+          return prev;
+        });
         
         // Show notification
         toast({
@@ -83,27 +97,30 @@ const LessonView: React.FC = () => {
     
     setExerciseResults(newResults);
 
-    // Move to next exercise with reduced delay (300ms instead of 1000ms)
-    setTimeout(() => {
-      // Check if we're in the retries section
-      const isInRetriesSection = currentExerciseIndex >= lesson.exercises.length;
-      
-      // If this is the last original exercise and no incorrect exercises to retry
-      const isLastOriginalExercise = currentExerciseIndex === lesson.exercises.length - 1 && incorrectExercises.length === 0;
-      
-      // If this is the last retry exercise
-      const isLastRetryExercise = isInRetriesSection && 
-                                incorrectExercises.length > 0 && 
-                                currentExerciseIndex === lesson.exercises.length + incorrectExercises.length - 1;
-      
-      if (isLastOriginalExercise || isLastRetryExercise) {
-        setIsCompleted(true);
-        // Complete the lesson
-        completeLesson(lesson.id, lesson.xpReward);
-      } else {
-        setCurrentExerciseIndex(currentExerciseIndex + 1);
-      }
-    }, 300); // Reduced delay from 1000ms to 300ms
+    // Check if this is the last exercise or the last retry
+    const isInRetriesSection = currentExerciseIndex >= lesson.exercises.length;
+    
+    // Last original exercise with no incorrect answers
+    const isLastOriginalExercise = currentExerciseIndex === lesson.exercises.length - 1 && incorrectExercises.length === 0;
+    
+    // Last retry exercise
+    const retryIndex = currentExerciseIndex - lesson.exercises.length;
+    const isLastRetryExercise = isInRetriesSection && 
+                              retryIndex === incorrectExercises.length - 1;
+    
+    console.log('isLastOriginalExercise:', isLastOriginalExercise);
+    console.log('isLastRetryExercise:', isLastRetryExercise);
+    
+    // If this is the last exercise (either original or retry)
+    if (isLastOriginalExercise || isLastRetryExercise) {
+      console.log('Setting is completed to true');
+      setIsCompleted(true);
+      // Complete the lesson
+      completeLesson(lesson.id, lesson.xpReward);
+    } else {
+      // Otherwise, move to the next exercise
+      setCurrentExerciseIndex(currentExerciseIndex + 1);
+    }
   };
 
   // Get the current exercise based on the current index and incorrect exercises
@@ -180,9 +197,58 @@ const LessonView: React.FC = () => {
       );
     } else {
       // If we've processed all retry questions and somehow still here,
-      // complete the lesson (this fixes the bug)
+      // force complete the lesson (this is a safety check)
+      console.log('Forcing completion - all retries done');
       setIsCompleted(true);
       completeLesson(lesson.id, lesson.xpReward);
+      
+      // Return the completion screen
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pattern-bg flex flex-col">
+          <Header />
+          <main className="flex-1 pb-20">
+            <div className="container mx-auto px-4 py-6 mb-16">
+              {/* Render completion screen */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                    <Award className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+                <h2 className="text-2xl font-bold mb-2 dark:text-gray-100">Lesson Completed!</h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Congratulations! You've earned {lesson.xpReward} XP
+                </p>
+                {/* Rest of completion screen content */}
+                <div className="flex flex-col md:flex-row justify-center gap-4">
+                  <Button
+                    onClick={() => navigate('/lessons')}
+                    variant="outline"
+                  >
+                    Back to Lessons
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const nextLessonNum = parseInt(lesson.id.split('-')[1]) + 1;
+                      const nextLessonId = `lesson-${nextLessonNum}`;
+                      const nextLesson = lessons.find((l) => l.id === nextLessonId);
+                      if (nextLesson) {
+                        navigate(`/lesson/${nextLessonId}`);
+                      } else {
+                        navigate('/lessons');
+                      }
+                    }}
+                  >
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </main>
+          <Footer currentPage="Lessons" />
+        </div>
+      );
     }
   }
 
