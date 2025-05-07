@@ -38,10 +38,9 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setIsCorrect(correct);
     setIsSubmitted(true);
     
-    // Reduce the delay to show feedback before moving to next exercise
-    setTimeout(() => {
-      onComplete(correct);
-    }, 300); // Reduced from 1500ms to 300ms
+    // Call onComplete immediately instead of using setTimeout
+    // This ensures the parent component can handle navigation without delay
+    onComplete(correct);
   };
 
   const speakText = (text: string) => {
@@ -174,18 +173,20 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
         ))}
       </div>
       
-      <button 
-        onClick={handleSubmit}
-        disabled={!selectedOption || isSubmitted}
-        className={cn(
-          "w-full py-3 px-4 rounded-lg font-medium text-white transition-all",
-          selectedOption && !isSubmitted 
-            ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80" 
-            : "bg-gray-300 cursor-not-allowed dark:bg-gray-600"
-        )}
-      >
-        {isSubmitted ? (isCorrect ? "Correct!" : "Try again next time") : "Check"}
-      </button>
+      <div>
+        <button 
+          onClick={handleSubmit}
+          disabled={!selectedOption || isSubmitted}
+          className={cn(
+            "w-full py-3 px-4 rounded-lg font-medium text-white transition-all",
+            selectedOption && !isSubmitted 
+              ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80" 
+              : "bg-gray-300 cursor-not-allowed dark:bg-gray-600"
+          )}
+        >
+          {isSubmitted ? (isCorrect ? "Correct!" : "Try again next time") : "Check"}
+        </button>
+      </div>
     </div>
   );
 };
