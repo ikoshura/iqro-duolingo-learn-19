@@ -1,4 +1,3 @@
-
 export interface PracticeExercise {
   id: string;
   title: string;
@@ -221,7 +220,7 @@ export const practiceExercises: PracticeExercise[] = [
             { id: 'opt-3', text: 'قَلَم', isCorrect: false },
             { id: 'opt-4', text: 'بَيْت', isCorrect: false },
           ],
-          explanation: 'مَاء (mā') means "water" in Arabic.'
+          explanation: "مَاء (mā\u0027) means \"water\" in Arabic."
         }
       ]
     }
