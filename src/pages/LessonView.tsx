@@ -16,7 +16,6 @@ const LessonView: React.FC = () => {
   const { userStats, completeLesson } = useUser();
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [exerciseResults, setExerciseResults] = useState<boolean[]>([]);
-  const [incorrectExercises, setIncorrectExercises] = useState<number[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -27,7 +26,6 @@ const LessonView: React.FC = () => {
     // Reset state when navigating to a new lesson
     setCurrentExerciseIndex(0);
     setExerciseResults([]);
-    setIncorrectExercises([]);
     setIsCompleted(false);
   }, [lessonId]);
 
@@ -37,8 +35,7 @@ const LessonView: React.FC = () => {
     const totalExercises = lesson?.exercises.length || 0;
     console.log('Current exercise index:', currentExerciseIndex);
     console.log('Total exercises:', totalExercises);
-    console.log('Incorrect exercises:', incorrectExercises);
-  }, [currentExerciseIndex, incorrectExercises, lesson]);
+  }, [currentExerciseIndex, lesson]);
 
   if (!lesson) {
     return (
@@ -66,56 +63,15 @@ const LessonView: React.FC = () => {
     );
   }
 
-  // Function to handle exercise completion
-  const handleExerciseComplete = (isCorrect: boolean, originalIndex?: number) => {
+  // Function to handle exercise completion - simplified without retry questions
+  const handleExerciseComplete = (isCorrect: boolean) => {
     const newResults = [...exerciseResults];
-    
-    // If we're retrying an exercise, update its original index result
-    if (originalIndex !== undefined) {
-      newResults[originalIndex] = isCorrect;
-    } else {
-      newResults[currentExerciseIndex] = isCorrect;
-      
-      // If answer is incorrect and not already in the retry list
-      if (!isCorrect) {
-        setIncorrectExercises(prev => {
-          // Only add to incorrectExercises if not already there
-          if (!prev.includes(currentExerciseIndex)) {
-            return [...prev, currentExerciseIndex];
-          }
-          return prev;
-        });
-        
-        // Show notification
-        toast({
-          title: "Incorrect Answer",
-          description: "You'll get another chance to answer this question at the end.",
-          className: "bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800/50"
-        });
-      }
-    }
-    
+    newResults[currentExerciseIndex] = isCorrect;
     setExerciseResults(newResults);
-
-    // Check if this is the last exercise or the last retry
-    const isInRetriesSection = currentExerciseIndex >= lesson.exercises.length;
     
-    // Last original exercise with no incorrect answers
-    const isLastOriginalExercise = currentExerciseIndex === lesson.exercises.length - 1 && incorrectExercises.length === 0;
-    
-    // Last retry exercise
-    const retryIndex = currentExerciseIndex - lesson.exercises.length;
-    const isLastRetryExercise = isInRetriesSection && 
-                              retryIndex === incorrectExercises.length - 1;
-    
-    console.log('isLastOriginalExercise:', isLastOriginalExercise);
-    console.log('isLastRetryExercise:', isLastRetryExercise);
-    
-    // If this is the last exercise (either original or retry)
-    if (isLastOriginalExercise || isLastRetryExercise) {
-      console.log('Setting is completed to true');
+    // If this is the last exercise, complete the lesson
+    if (currentExerciseIndex === lesson.exercises.length - 1) {
       setIsCompleted(true);
-      // Complete the lesson
       completeLesson(lesson.id, lesson.xpReward);
     } else {
       // Otherwise, move to the next exercise
@@ -123,135 +79,7 @@ const LessonView: React.FC = () => {
     }
   };
 
-  // Get the current exercise based on the current index and incorrect exercises
-  let exercisePool = lesson.exercises; // Original exercises
-  if (incorrectExercises.length > 0 && currentExerciseIndex >= exercisePool.length) {
-    // If we've gone through all original exercises but have incorrect ones to retry
-    const incorrectIndex = currentExerciseIndex - exercisePool.length;
-    if (incorrectIndex < incorrectExercises.length) {
-      const incorrectExerciseIndex = incorrectExercises[incorrectIndex];
-      const currentExercise = exercisePool[incorrectExerciseIndex];
-      
-      // Show the exercise with a "retry" flag
-      return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pattern-bg flex flex-col">
-          <Header />
-          <main className="flex-1 pb-20">
-            <div className="container mx-auto px-4 py-6 mb-16">
-              {/* Lesson header */}
-              <div className="flex items-center mb-6">
-                <button
-                  onClick={() => navigate('/lessons')}
-                  className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-                >
-                  <ArrowLeft className="w-5 h-5 dark:text-gray-200" />
-                </button>
-                <h1 className="text-2xl font-bold dark:text-gray-100">{lesson.title}</h1>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mb-6">
-                <div className="flex justify-between text-sm mb-1 dark:text-gray-300">
-                  <div className="flex items-center">
-                    <span>Review Question {incorrectIndex + 1} of {incorrectExercises.length}</span>
-                    <AlertTriangle className="h-4 w-4 ml-2 text-amber-500" />
-                  </div>
-                  <span>
-                    {currentExerciseIndex + 1 - exercisePool.length + incorrectExercises.length} / {exercisePool.length + incorrectExercises.length}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-500 transition-all duration-500 ease-out"
-                    style={{
-                      width: `${
-                        ((currentExerciseIndex + 1) / (exercisePool.length + incorrectExercises.length)) * 100
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Exercise */}
-              <div className="mb-6">
-                {currentExercise && (
-                  <div>
-                    <div className="mb-3 bg-amber-100 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800/50">
-                      <p className="text-sm text-amber-800 dark:text-amber-300 flex items-center">
-                        <AlertTriangle className="h-4 w-4 mr-2" />
-                        Let's try this question again!
-                      </p>
-                    </div>
-                    <LetterExercise
-                      key={`retry-exercise-${incorrectExerciseIndex}-${incorrectIndex}`}
-                      exercise={currentExercise}
-                      onComplete={(isCorrect) => handleExerciseComplete(isCorrect, incorrectExerciseIndex)}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </main>
-          <Footer currentPage="Lessons" />
-        </div>
-      );
-    } else {
-      // If we've processed all retry questions and somehow still here,
-      // force complete the lesson (this is a safety check)
-      console.log('Forcing completion - all retries done');
-      setIsCompleted(true);
-      completeLesson(lesson.id, lesson.xpReward);
-      
-      // Return the completion screen
-      return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pattern-bg flex flex-col">
-          <Header />
-          <main className="flex-1 pb-20">
-            <div className="container mx-auto px-4 py-6 mb-16">
-              {/* Render completion screen */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                    <Award className="w-8 h-8 text-green-600 dark:text-green-400" />
-                  </div>
-                </div>
-                <h2 className="text-2xl font-bold mb-2 dark:text-gray-100">Lesson Completed!</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Congratulations! You've earned {lesson.xpReward} XP
-                </p>
-                {/* Rest of completion screen content */}
-                <div className="flex flex-col md:flex-row justify-center gap-4">
-                  <Button
-                    onClick={() => navigate('/lessons')}
-                    variant="outline"
-                  >
-                    Back to Lessons
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      const nextLessonNum = parseInt(lesson.id.split('-')[1]) + 1;
-                      const nextLessonId = `lesson-${nextLessonNum}`;
-                      const nextLesson = lessons.find((l) => l.id === nextLessonId);
-                      if (nextLesson) {
-                        navigate(`/lesson/${nextLessonId}`);
-                      } else {
-                        navigate('/lessons');
-                      }
-                    }}
-                  >
-                    <ArrowRight className="w-4 h-4 mr-2" />
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </main>
-          <Footer currentPage="Lessons" />
-        </div>
-      );
-    }
-  }
-
+  // Get the current exercise - simplified without retry logic
   const currentExercise = lesson.exercises[currentExerciseIndex];
 
   // Calculate performance metrics for the lesson completion screen
@@ -304,7 +132,7 @@ const LessonView: React.FC = () => {
               <div className="flex justify-between text-sm mb-1 dark:text-gray-300">
                 <span>Progress</span>
                 <span>
-                  {currentExerciseIndex + 1} / {lesson.exercises.length + incorrectExercises.length}
+                  {currentExerciseIndex + 1} / {lesson.exercises.length}
                 </span>
               </div>
               <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -312,8 +140,7 @@ const LessonView: React.FC = () => {
                   className="h-full bg-primary transition-all duration-500 ease-out"
                   style={{
                     width: `${
-                      ((currentExerciseIndex + 1) / (lesson.exercises.length + incorrectExercises.length)) *
-                      100
+                      ((currentExerciseIndex + 1) / lesson.exercises.length) * 100
                     }%`,
                   }}
                 />
