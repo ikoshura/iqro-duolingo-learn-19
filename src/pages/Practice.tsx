@@ -5,45 +5,8 @@ import Footer from '../components/Footer';
 import { BookOpen, CheckCircle } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { Progress } from "@/components/ui/progress";
-
-const practiceExercises = [
-  {
-    id: 'practice-1',
-    title: 'Letter Recognition',
-    description: 'Practice identifying Arabic letters quickly',
-    duration: '5 min',
-    difficulty: 'Beginner',
-    category: 'letters',
-    completed: true
-  },
-  {
-    id: 'practice-2',
-    title: 'Vowel Marks',
-    description: 'Practice with Fatha, Kasra, and Damma vowel marks',
-    duration: '7 min',
-    difficulty: 'Beginner',
-    category: 'vowels',
-    completed: false
-  },
-  {
-    id: 'practice-3',
-    title: 'Letter Combinations',
-    description: 'Practice reading letters with different vowel marks',
-    duration: '8 min',
-    difficulty: 'Intermediate',
-    category: 'combinations',
-    completed: false
-  },
-  {
-    id: 'practice-4',
-    title: 'Word Formation',
-    description: 'Practice reading simple words with multiple letters',
-    duration: '10 min',
-    difficulty: 'Intermediate',
-    category: 'words',
-    completed: false
-  }
-];
+import { useNavigate } from 'react-router-dom';
+import { practiceExercises } from '../data/practiceData';
 
 const PracticeCard: React.FC<{
   exercise: typeof practiceExercises[0];
@@ -59,7 +22,7 @@ const PracticeCard: React.FC<{
         {exercise.completed && <CheckCircle className="h-5 w-5 text-green-500" />}
       </div>
       
-      <p className="text-gray-600 text-sm mb-3">{exercise.description}</p>
+      <p className="text-gray-600 text-sm mb-3 dark:text-gray-300">{exercise.description}</p>
       
       <div className="flex justify-between text-xs">
         <span className="bg-primary/10 text-primary px-2 py-1 rounded-full">
@@ -73,6 +36,11 @@ const PracticeCard: React.FC<{
 
 const Practice: React.FC = () => {
   const { userStats } = useUser();
+  const navigate = useNavigate();
+
+  const handlePracticeClick = (exerciseId: string) => {
+    navigate(`/practice/${exerciseId}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pattern-bg flex flex-col bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -100,7 +68,7 @@ const Practice: React.FC = () => {
                 <PracticeCard
                   key={exercise.id}
                   exercise={exercise}
-                  onClick={() => console.log(`Starting practice: ${exercise.id}`)}
+                  onClick={() => handlePracticeClick(exercise.id)}
                 />
               ))}
             </div>
@@ -108,7 +76,7 @@ const Practice: React.FC = () => {
 
           <div className="mb-10 islamic-pattern rounded-lg p-6 text-center">
             <h3 className="font-bold text-xl mb-2">Practice Makes Perfect</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Regular practice helps you memorize and recognize letters faster!
             </p>
           </div>

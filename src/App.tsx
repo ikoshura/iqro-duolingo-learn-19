@@ -18,6 +18,7 @@ import LessonView from "./pages/LessonView";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
+import PracticeLesson from "./pages/PracticeLesson";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/home" element={<Home />} />
                 <Route path="/lessons" element={<Lessons />} />
                 <Route path="/practice" element={<Practice />} />
+                <Route path="/practice/:practiceId" element={<PracticeLesson />} />
                 <Route path="/achievements" element={<Achievements />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/lesson/:lessonId" element={<LessonView />} />
