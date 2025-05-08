@@ -6,6 +6,7 @@ interface UserStats {
   streak: number;
   level: number;
   completedLessons: string[];
+  lessonAccuracy: Record<string, number>; // New field to track lesson accuracy
   currentLesson: string | null;
   dailyGoal: number;
   dailyProgress: number;
@@ -14,7 +15,7 @@ interface UserStats {
 interface UserContextType {
   userStats: UserStats;
   updateUserStats: (stats: Partial<UserStats>) => void;
-  completeLesson: (lessonId: string, earnedXp: number) => void;
+  completeLesson: (lessonId: string, earnedXp: number, accuracy?: number) => void;
 }
 
 const defaultUserStats: UserStats = {
@@ -22,6 +23,7 @@ const defaultUserStats: UserStats = {
   streak: 0,
   level: 1,
   completedLessons: [],
+  lessonAccuracy: {}, // Track accuracy per lesson
   currentLesson: 'lesson-1',
   dailyGoal: 50,
   dailyProgress: 0,
@@ -36,20 +38,46 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUserStats(prevStats => ({ ...prevStats, ...stats }));
   };
 
-  const completeLesson = (lessonId: string, earnedXp: number) => {
+  const completeLesson = (lessonId: string, earnedXp: number, accuracy = 100) => {
     setUserStats(prevStats => {
-      // Don't add XP if lesson was already completed
-      if (prevStats.completedLessons.includes(lessonId)) {
-        return prevStats;
+      // Always update the accuracy
+      const newLessonAccuracy = {
+        ...prevStats.lessonAccuracy,
+        [lessonId]: accuracy
+      };
+      
+      // Don't add XP if lesson was already completed with 100% accuracy
+      if (prevStats.completedLessons.includes(lessonId) && prevStats.lessonAccuracy[lessonId] === 100) {
+        return {
+          ...prevStats,
+          lessonAccuracy: newLessonAccuracy
+        };
       }
 
-      const newXp = prevStats.xp + earnedXp;
-      const newDailyProgress = Math.min(prevStats.dailyGoal, prevStats.dailyProgress + earnedXp);
+      // If already completed but with lower accuracy, only add partial XP
+      let xpToAdd = earnedXp;
+      if (prevStats.completedLessons.includes(lessonId)) {
+        const previousAccuracy = prevStats.lessonAccuracy[lessonId] || 0;
+        // Only give XP for the improvement
+        if (accuracy > previousAccuracy) {
+          xpToAdd = Math.floor((accuracy - previousAccuracy) / 100 * earnedXp);
+        } else {
+          xpToAdd = 0;
+        }
+      }
+
+      const newXp = prevStats.xp + xpToAdd;
+      const newDailyProgress = Math.min(prevStats.dailyGoal, prevStats.dailyProgress + xpToAdd);
       
       // Calculate level (every 100 XP is a new level)
       const newLevel = Math.floor(newXp / 100) + 1;
       
-      // Determine next lesson to unlock
+      // Include in completed lessons regardless of accuracy
+      const newCompletedLessons = prevStats.completedLessons.includes(lessonId)
+        ? prevStats.completedLessons
+        : [...prevStats.completedLessons, lessonId];
+      
+      // Determine next lesson to unlock (only if 100% accuracy)
       const lessonNumber = parseInt(lessonId.split('-')[1]);
       const nextLessonId = `lesson-${lessonNumber + 1}`;
       
@@ -57,8 +85,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ...prevStats,
         xp: newXp,
         level: newLevel,
-        completedLessons: [...prevStats.completedLessons, lessonId],
-        currentLesson: nextLessonId,
+        completedLessons: newCompletedLessons,
+        lessonAccuracy: newLessonAccuracy,
+        currentLesson: accuracy === 100 ? nextLessonId : prevStats.currentLesson,
         dailyProgress: newDailyProgress,
       };
     });

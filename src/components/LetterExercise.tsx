@@ -18,13 +18,12 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { t } = useLanguage();
 
-  // Reset state when exercise changes - using the exercise ID to track changes
-  // This is important to reset state when retrying an exercise
+  // Reset state when exercise changes
   useEffect(() => {
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCorrect(false);
-  }, [exercise.id, exercise]); // Add exercise as dependency too for retry questions
+  }, [exercise.id, exercise]);
 
   const handleOptionSelect = (option: string) => {
     if (isSubmitted) return;
@@ -39,7 +38,6 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setIsSubmitted(true);
     
     // Call onComplete immediately instead of using setTimeout
-    // This ensures the parent component can handle navigation without delay
     onComplete(correct);
   };
 
@@ -114,7 +112,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
         )}
       </div>
       
-      {/* Options */}
+      {/* Options - Modified to always show the correct answer after submission */}
       <div className="grid grid-cols-1 gap-3 mb-6">
         {exercise.content.options?.map((option) => (
           <button
@@ -126,6 +124,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
               selectedOption === option && !isSubmitted && "border-primary bg-primary/5 dark:bg-primary/10",
               isSubmitted && selectedOption === option && isCorrect && "border-green-500 bg-green-50 dark:bg-green-900/20",
               isSubmitted && selectedOption === option && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-900/20",
+              // Always highlight the correct answer when submitted
               isSubmitted && option === exercise.content.correctAnswer && "border-green-500 bg-green-50 dark:bg-green-900/20",
               isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
             )}
@@ -158,7 +157,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
                 </Button>
               )}
               
-              {/* Show correct/incorrect icon */}
+              {/* Show correct/incorrect icon for the selected option */}
               {isSubmitted && selectedOption === option && (
                 <span className="inline-flex">
                   {isCorrect ? (
@@ -166,6 +165,13 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
                   ) : (
                     <XCircle className="h-5 w-5 text-red-500" />
                   )}
+                </span>
+              )}
+              
+              {/* Always show correct icon for the correct answer when submitted */}
+              {isSubmitted && option === exercise.content.correctAnswer && option !== selectedOption && (
+                <span className="inline-flex">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                 </span>
               )}
             </div>

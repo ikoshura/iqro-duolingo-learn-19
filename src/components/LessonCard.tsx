@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Lesson } from '../data/lessonData';
 import { Clock, Award, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
 interface LessonCardProps {
   lesson: Lesson;
@@ -14,7 +16,13 @@ const LessonCard: React.FC<LessonCardProps> = ({
   isCompleted
 }) => {
   const navigate = useNavigate();
+  const { userStats } = useUser();
   const { title, description, duration, xpReward, isUnlocked } = lesson;
+  
+  // Get lesson accuracy
+  const accuracy = userStats.lessonAccuracy?.[lesson.id] || 0;
+  const isPerfect = accuracy === 100;
+  const isPartiallyCompleted = isCompleted && !isPerfect;
 
   const handleClick = () => {
     if (isUnlocked) {
@@ -30,14 +38,16 @@ const LessonCard: React.FC<LessonCardProps> = ({
         isUnlocked
           ? "cursor-pointer hover:shadow-md hover:-translate-y-1 border-primary/20 bg-white dark:bg-gray-900"
           : "opacity-70 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700",
-        isCompleted && "border-green-200 bg-green-50 dark:bg-green-950"
+        isCompleted && isPerfect && "border-green-200 bg-green-50 dark:bg-green-950",
+        isPartiallyCompleted && "border-amber-200 bg-amber-50 dark:bg-amber-950/30" // Yellow for partial completion
       )}
     >
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className={cn(
             "font-semibold text-lg text-gray-900 dark:text-gray-100",
-            isCompleted && "text-green-600 dark:text-green-400"
+            isCompleted && isPerfect && "text-green-600 dark:text-green-400",
+            isPartiallyCompleted && "text-amber-600 dark:text-amber-400" // Yellow for partial completion
           )}>
             {title}
           </h3>
@@ -47,8 +57,14 @@ const LessonCard: React.FC<LessonCardProps> = ({
           )}
 
           {isCompleted && (
-            <div className="flex items-center justify-center bg-green-100 dark:bg-green-800 rounded-full p-1">
-              <Award className="h-4 w-4 text-green-600 dark:text-green-300" />
+            <div className={cn(
+              "flex items-center justify-center rounded-full p-1",
+              isPerfect ? "bg-green-100 dark:bg-green-800" : "bg-amber-100 dark:bg-amber-800"
+            )}>
+              <Award className={cn(
+                "h-4 w-4", 
+                isPerfect ? "text-green-600 dark:text-green-300" : "text-amber-600 dark:text-amber-300"
+              )} />
             </div>
           )}
         </div>
@@ -56,6 +72,29 @@ const LessonCard: React.FC<LessonCardProps> = ({
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
           {description}
         </p>
+        
+        {/* Display accuracy if the lesson has been attempted */}
+        {isCompleted && (
+          <div className="mb-3">
+            <div className="flex justify-between text-xs mb-1">
+              <span className={cn(
+                "font-medium",
+                isPerfect ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"
+              )}>
+                Accuracy: {accuracy}%
+              </span>
+            </div>
+            <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div 
+                className={cn(
+                  "h-full rounded-full",
+                  isPerfect ? "bg-green-500" : "bg-amber-500"
+                )}
+                style={{ width: `${accuracy}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">

@@ -5,7 +5,7 @@ import { lessons } from '../data/lessonData';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LetterExercise from '../components/LetterExercise';
-import { ArrowLeft, ArrowRight, Award, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, AlertTriangle, CheckCircle2, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '../context/LanguageContext';
@@ -63,7 +63,7 @@ const LessonView: React.FC = () => {
     );
   }
 
-  // Function to handle exercise completion - simplified without retry questions
+  // Function to handle exercise completion
   const handleExerciseComplete = (isCorrect: boolean) => {
     const newResults = [...exerciseResults];
     newResults[currentExerciseIndex] = isCorrect;
@@ -72,14 +72,28 @@ const LessonView: React.FC = () => {
     // If this is the last exercise, complete the lesson
     if (currentExerciseIndex === lesson.exercises.length - 1) {
       setIsCompleted(true);
-      completeLesson(lesson.id, lesson.xpReward);
+      
+      // Calculate accuracy for the lesson
+      const totalQuestions = lesson.exercises.length;
+      const correctAnswers = [...newResults, isCorrect].filter(result => result === true).length;
+      const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+      
+      // Pass the accuracy to the completeLesson function
+      completeLesson(lesson.id, lesson.xpReward, accuracy);
     } else {
       // Otherwise, move to the next exercise
       setCurrentExerciseIndex(currentExerciseIndex + 1);
     }
   };
 
-  // Get the current exercise - simplified without retry logic
+  // Handle retrying the lesson
+  const handleRetryLesson = () => {
+    setCurrentExerciseIndex(0);
+    setExerciseResults([]);
+    setIsCompleted(false);
+  };
+
+  // Get the current exercise
   const currentExercise = lesson.exercises[currentExerciseIndex];
 
   // Calculate performance metrics for the lesson completion screen
@@ -94,7 +108,7 @@ const LessonView: React.FC = () => {
     let performanceLevel = "";
     let feedbackMessage = "";
 
-    if (accuracy >= 90) {
+    if (accuracy >= 100) {
       performanceLevel = "Excellent";
       feedbackMessage = "You've mastered this content! Excellent job on this lesson.";
     } else if (accuracy >= 70) {
@@ -187,7 +201,7 @@ const LessonView: React.FC = () => {
                     <div className="w-full h-2 bg-gray-100 dark:bg-gray-600 rounded-full">
                       <div
                         className={`h-full rounded-full ${
-                          performance.accuracy >= 90 ? 'bg-green-500' : 
+                          performance.accuracy >= 100 ? 'bg-green-500' : 
                           performance.accuracy >= 70 ? 'bg-amber-500' : 'bg-red-500'
                         }`}
                         style={{ width: `${performance.accuracy}%` }}
@@ -233,12 +247,23 @@ const LessonView: React.FC = () => {
               )}
               
               <div className="flex flex-col md:flex-row justify-center gap-4">
+                {/* Added Retry Button */}
+                <Button
+                  onClick={handleRetryLesson}
+                  variant="outline"
+                  className="flex items-center"
+                >
+                  <RefreshCcw className="w-4 h-4 mr-2" />
+                  Retry Lesson
+                </Button>
+                
                 <Button
                   onClick={() => navigate('/lessons')}
                   variant="outline"
                 >
                   Back to Lessons
                 </Button>
+                
                 <Button
                   onClick={() => {
                     const nextLessonNum = parseInt(lesson.id.split('-')[1]) + 1;
@@ -250,11 +275,20 @@ const LessonView: React.FC = () => {
                       navigate('/lessons');
                     }
                   }}
+                  disabled={performance?.accuracy < 100}
+                  className={performance?.accuracy < 100 ? "opacity-50" : ""}
                 >
                   <ArrowRight className="w-4 h-4 mr-2" />
                   Continue
                 </Button>
               </div>
+              
+              {/* Add a message if the accuracy is not 100% */}
+              {performance && performance.accuracy < 100 && (
+                <p className="text-amber-500 mt-4 text-sm">
+                  You need to achieve 100% accuracy to unlock the next lesson.
+                </p>
+              )}
             </div>
           )}
         </div>
