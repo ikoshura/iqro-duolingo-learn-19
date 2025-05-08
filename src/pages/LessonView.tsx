@@ -4,11 +4,14 @@ import { useUser } from '../context/UserContext';
 import { lessons } from '../data/lessonData';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import LetterExercise from '../components/LetterExercise';
-import { ArrowLeft, ArrowRight, Award, AlertTriangle, CheckCircle2, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '../context/LanguageContext';
+
+// Import refactored components
+import LessonHeader from '../components/lesson/LessonHeader';
+import LessonProgress from '../components/lesson/LessonProgress';
+import LessonExerciseContainer from '../components/lesson/LessonExerciseContainer';
+import CompletionScreen from '../components/lesson/CompletionScreen';
 
 const LessonView: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -41,7 +44,6 @@ const LessonView: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center">
         <p className="text-xl mb-4 dark:text-gray-100">Lesson not found</p>
-        <Button onClick={() => navigate('/lessons')}>Back to Lessons</Button>
       </div>
     );
   }
@@ -58,7 +60,6 @@ const LessonView: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center">
         <p className="text-xl mb-4 dark:text-gray-100">This lesson is locked</p>
-        <Button onClick={() => navigate('/lessons')}>Back to Lessons</Button>
       </div>
     );
   }
@@ -91,6 +92,18 @@ const LessonView: React.FC = () => {
     setCurrentExerciseIndex(0);
     setExerciseResults([]);
     setIsCompleted(false);
+  };
+
+  // Handle continuing to next lesson
+  const handleContinueToNextLesson = () => {
+    const nextLessonNum = parseInt(lesson.id.split('-')[1]) + 1;
+    const nextLessonId = `lesson-${nextLessonNum}`;
+    const nextLesson = lessons.find((l) => l.id === nextLessonId);
+    if (nextLesson) {
+      navigate(`/lesson/${nextLessonId}`);
+    } else {
+      navigate('/lessons');
+    }
   };
 
   // Get the current exercise
@@ -130,166 +143,34 @@ const LessonView: React.FC = () => {
       <main className="flex-1 pb-20">
         <div className="container mx-auto px-4 py-6 mb-16">
           {/* Lesson header */}
-          <div className="flex items-center mb-6">
-            <button
-              onClick={() => navigate('/lessons')}
-              className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-            >
-              <ArrowLeft className="w-5 h-5 dark:text-gray-200" />
-            </button>
-            <h1 className="text-2xl font-bold dark:text-gray-100">{lesson.title}</h1>
-          </div>
-
+          <LessonHeader title={lesson.title} />
+          
           {/* Progress bar */}
           {!isCompleted && (
-            <div className="mb-6">
-              <div className="flex justify-between text-sm mb-1 dark:text-gray-300">
-                <span>Progress</span>
-                <span>
-                  {currentExerciseIndex + 1} / {lesson.exercises.length}
-                </span>
-              </div>
-              <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all duration-500 ease-out"
-                  style={{
-                    width: `${
-                      ((currentExerciseIndex + 1) / lesson.exercises.length) * 100
-                    }%`,
-                  }}
-                />
-              </div>
-            </div>
+            <LessonProgress
+              currentIndex={currentExerciseIndex}
+              total={lesson.exercises.length}
+            />
           )}
 
           {!isCompleted ? (
-            <>
-              {/* Exercise */}
-              <div className="mb-6">
-                {currentExercise && (
-                  <LetterExercise
-                    key={`exercise-${currentExerciseIndex}`}
-                    exercise={currentExercise}
-                    onComplete={handleExerciseComplete}
-                  />
-                )}
-              </div>
-            </>
+            /* Exercise */
+            <LessonExerciseContainer 
+              currentExercise={currentExercise}
+              exerciseIndex={currentExerciseIndex}
+              onComplete={handleExerciseComplete}
+            />
           ) : (
             /* Lesson completed screen with detailed review */
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                  <Award className="w-8 h-8 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold mb-2 dark:text-gray-100">Lesson Completed!</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Congratulations! You've earned {lesson.xpReward} XP
-              </p>
-
-              {/* Performance Review Section */}
-              {performance && (
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 mb-6 text-left">
-                  <h3 className="text-lg font-semibold mb-3 dark:text-gray-200">Your Performance Review</h3>
-                  
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-600 dark:text-gray-300">Accuracy</span>
-                      <span className="text-sm font-medium">{performance.accuracy}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-100 dark:bg-gray-600 rounded-full">
-                      <div
-                        className={`h-full rounded-full ${
-                          performance.accuracy >= 100 ? 'bg-green-500' : 
-                          performance.accuracy >= 70 ? 'bg-amber-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${performance.accuracy}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center">
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Correct</p>
-                        <p className="font-semibold">{performance.correctAnswers} of {performance.totalQuestions}</p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center">
-                      <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mr-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Incorrect</p>
-                        <p className="font-semibold">{performance.incorrectAnswers} of {performance.totalQuestions}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-2">
-                    <p className="font-medium text-gray-800 dark:text-gray-200">
-                      Performance Level: <span className={`${
-                        performance.performanceLevel === "Excellent" ? 'text-green-500 dark:text-green-400' : 
-                        performance.performanceLevel === "Good" ? 'text-amber-500 dark:text-amber-400' : 
-                        'text-red-500 dark:text-red-400'
-                      }`}>{performance.performanceLevel}</span>
-                    </p>
-                  </div>
-                  
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    {performance.feedbackMessage}
-                  </p>
-                </div>
-              )}
-              
-              <div className="flex flex-col md:flex-row justify-center gap-4">
-                {/* Added Retry Button */}
-                <Button
-                  onClick={handleRetryLesson}
-                  variant="outline"
-                  className="flex items-center"
-                >
-                  <RefreshCcw className="w-4 h-4 mr-2" />
-                  Retry Lesson
-                </Button>
-                
-                <Button
-                  onClick={() => navigate('/lessons')}
-                  variant="outline"
-                >
-                  Back to Lessons
-                </Button>
-                
-                <Button
-                  onClick={() => {
-                    const nextLessonNum = parseInt(lesson.id.split('-')[1]) + 1;
-                    const nextLessonId = `lesson-${nextLessonNum}`;
-                    const nextLesson = lessons.find((l) => l.id === nextLessonId);
-                    if (nextLesson) {
-                      navigate(`/lesson/${nextLessonId}`);
-                    } else {
-                      navigate('/lessons');
-                    }
-                  }}
-                  disabled={performance?.accuracy < 100}
-                  className={performance?.accuracy < 100 ? "opacity-50" : ""}
-                >
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  Continue
-                </Button>
-              </div>
-              
-              {/* Add a message if the accuracy is not 100% */}
-              {performance && performance.accuracy < 100 && (
-                <p className="text-amber-500 mt-4 text-sm">
-                  You need to achieve 100% accuracy to unlock the next lesson.
-                </p>
-              )}
-            </div>
+            performance && (
+              <CompletionScreen 
+                lessonId={lesson.id}
+                xpReward={lesson.xpReward}
+                performance={performance}
+                onRetry={handleRetryLesson}
+                onContinue={handleContinueToNextLesson}
+              />
+            )
           )}
         </div>
       </main>
