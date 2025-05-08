@@ -98,12 +98,12 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
         </p>
       </div>
       
-      <div className="flex flex-col md:flex-row justify-center gap-4">
-        {/* Retry Button */}
+      <div className="flex flex-col sm:flex-row justify-center gap-4">
+        {/* Retry Button - always available */}
         <Button
           onClick={onRetry}
           variant="outline"
-          className="flex items-center"
+          className="flex items-center justify-center"
         >
           <RefreshCcw className="w-4 h-4 mr-2" />
           Retry Lesson
@@ -119,7 +119,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
         <Button
           onClick={onContinue}
           disabled={performance.accuracy < 100}
-          className={performance.accuracy < 100 ? "opacity-50" : ""}
+          className="flex items-center justify-center"
         >
           <ArrowRight className="w-4 h-4 mr-2" />
           Continue

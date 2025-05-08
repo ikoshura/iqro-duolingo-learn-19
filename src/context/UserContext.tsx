@@ -39,11 +39,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const completeLesson = (lessonId: string, earnedXp: number, accuracy = 100) => {
+    // Ensure accuracy is capped at 100%
+    const cappedAccuracy = Math.min(100, accuracy);
+    
     setUserStats(prevStats => {
       // Always update the accuracy
       const newLessonAccuracy = {
         ...prevStats.lessonAccuracy,
-        [lessonId]: accuracy
+        [lessonId]: cappedAccuracy
       };
       
       // Don't add XP if lesson was already completed with 100% accuracy
@@ -59,8 +62,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (prevStats.completedLessons.includes(lessonId)) {
         const previousAccuracy = prevStats.lessonAccuracy[lessonId] || 0;
         // Only give XP for the improvement
-        if (accuracy > previousAccuracy) {
-          xpToAdd = Math.floor((accuracy - previousAccuracy) / 100 * earnedXp);
+        if (cappedAccuracy > previousAccuracy) {
+          xpToAdd = Math.floor((cappedAccuracy - previousAccuracy) / 100 * earnedXp);
         } else {
           xpToAdd = 0;
         }
@@ -87,7 +90,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         level: newLevel,
         completedLessons: newCompletedLessons,
         lessonAccuracy: newLessonAccuracy,
-        currentLesson: accuracy === 100 ? nextLessonId : prevStats.currentLesson,
+        currentLesson: cappedAccuracy === 100 ? nextLessonId : prevStats.currentLesson,
         dailyProgress: newDailyProgress,
       };
     });

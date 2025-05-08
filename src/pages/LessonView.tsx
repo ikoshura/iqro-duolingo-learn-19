@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
@@ -74,10 +75,10 @@ const LessonView: React.FC = () => {
     if (currentExerciseIndex === lesson.exercises.length - 1) {
       setIsCompleted(true);
       
-      // Calculate accuracy for the lesson
+      // Calculate accuracy for the lesson - ensure it doesn't exceed 100%
       const totalQuestions = lesson.exercises.length;
       const correctAnswers = [...newResults, isCorrect].filter(result => result === true).length;
-      const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+      const accuracy = Math.min(100, Math.round((correctAnswers / totalQuestions) * 100));
       
       // Pass the accuracy to the completeLesson function
       completeLesson(lesson.id, lesson.xpReward, accuracy);
@@ -116,7 +117,7 @@ const LessonView: React.FC = () => {
     const totalQuestions = lesson.exercises.length;
     const correctAnswers = exerciseResults.filter(result => result === true).length;
     const incorrectAnswers = totalQuestions - correctAnswers;
-    const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+    const accuracy = Math.min(100, Math.round((correctAnswers / totalQuestions) * 100));
 
     let performanceLevel = "";
     let feedbackMessage = "";
