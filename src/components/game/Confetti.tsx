@@ -52,7 +52,8 @@ const Confetti: React.FC<ConfettiProps> = ({ active, duration = 3000 }) => {
   return (
     <div className="confetti-container">
       {confettiPieces}
-      <style jsx>{`
+      <style>
+        {`
         .confetti-container {
           position: fixed;
           top: 0;
@@ -81,7 +82,8 @@ const Confetti: React.FC<ConfettiProps> = ({ active, duration = 3000 }) => {
             transform: translateX(100px) rotate(360deg);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
