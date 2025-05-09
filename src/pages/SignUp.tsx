@@ -162,13 +162,17 @@ const SignUp: React.FC = () => {
           navigate('/home');
         }
       } else {
-        // Error shake animation
+        // Error shake animation - Fix for the TypeScript error
         if (formRef.current) {
-          gsap.to(formRef.current, {
-            x: [-10, 10, -8, 8, -5, 5, 0],
-            duration: 0.6,
-            ease: "power2.out"
-          });
+          // Use a timeline for complex animation instead of array
+          const tl = gsap.timeline();
+          tl.to(formRef.current, { x: -10, duration: 0.1 })
+            .to(formRef.current, { x: 10, duration: 0.1 })
+            .to(formRef.current, { x: -8, duration: 0.1 })
+            .to(formRef.current, { x: 8, duration: 0.1 })
+            .to(formRef.current, { x: -5, duration: 0.1 })
+            .to(formRef.current, { x: 5, duration: 0.1 })
+            .to(formRef.current, { x: 0, duration: 0.1 });
         }
         
         toast({

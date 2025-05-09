@@ -226,3 +226,62 @@ export function useButtonAnimation<T extends HTMLElement>() {
 
   return buttonRef;
 }
+
+// New utility hook for shake animation - avoids array type errors
+export function useShakeAnimation<T extends HTMLElement>() {
+  const elementRef = useRef<T>(null);
+
+  const applyShake = () => {
+    if (elementRef.current) {
+      const timeline = gsap.timeline();
+      timeline.to(elementRef.current, { x: -10, duration: 0.1 })
+        .to(elementRef.current, { x: 10, duration: 0.1 })
+        .to(elementRef.current, { x: -8, duration: 0.1 })
+        .to(elementRef.current, { x: 8, duration: 0.1 })
+        .to(elementRef.current, { x: -5, duration: 0.1 })
+        .to(elementRef.current, { x: 5, duration: 0.1 })
+        .to(elementRef.current, { x: 0, duration: 0.1 });
+      return timeline;
+    }
+    return gsap.timeline();
+  };
+
+  return { elementRef, applyShake };
+}
+
+// New utility hook for wiggle animation
+export function useWiggleAnimation<T extends HTMLElement>() {
+  const elementRef = useRef<T>(null);
+
+  const applyWiggle = () => {
+    if (elementRef.current) {
+      const timeline = gsap.timeline();
+      timeline.to(elementRef.current, { rotation: -5, duration: 0.1 })
+        .to(elementRef.current, { rotation: 5, duration: 0.1 })
+        .to(elementRef.current, { rotation: -3, duration: 0.1 })
+        .to(elementRef.current, { rotation: 3, duration: 0.1 })
+        .to(elementRef.current, { rotation: 0, duration: 0.1 });
+      return timeline;
+    }
+    return gsap.timeline();
+  };
+
+  return { elementRef, applyWiggle };
+}
+
+// New utility hook for pulse animation
+export function usePulseAnimation<T extends HTMLElement>() {
+  const elementRef = useRef<T>(null);
+
+  const applyPulse = () => {
+    if (elementRef.current) {
+      const timeline = gsap.timeline();
+      timeline.to(elementRef.current, { scale: 1.1, duration: 0.15 })
+        .to(elementRef.current, { scale: 1, duration: 0.15 });
+      return timeline;
+    }
+    return gsap.timeline();
+  };
+
+  return { elementRef, applyPulse };
+}

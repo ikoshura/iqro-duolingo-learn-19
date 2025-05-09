@@ -152,12 +152,15 @@ const SignIn: React.FC = () => {
           navigate('/home');
         }
       } else {
-        // Error animation on form
+        // Error animation on form - Fix for the TypeScript error
         if (formRef.current) {
-          gsap.to(formRef.current, {
-            x: [-10, 10, -10, 5, 0],
-            duration: 0.5,
-          });
+          // Use a function for complex animation instead of array
+          const tl = gsap.timeline();
+          tl.to(formRef.current, { x: -10, duration: 0.1 })
+            .to(formRef.current, { x: 10, duration: 0.1 })
+            .to(formRef.current, { x: -10, duration: 0.1 })
+            .to(formRef.current, { x: 5, duration: 0.1 })
+            .to(formRef.current, { x: 0, duration: 0.1 });
         }
         
         toast({
