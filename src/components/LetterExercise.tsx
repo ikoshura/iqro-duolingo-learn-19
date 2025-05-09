@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Exercise } from '../data/lessonData';
-import { CheckCircle, XCircle, Volume2 } from 'lucide-react';
+import { CheckCircle, XCircle, Volume2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { useLanguage } from '../context/LanguageContext';
@@ -16,6 +16,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showCorrectAnimation, setShowCorrectAnimation] = useState(false);
   const { t } = useLanguage();
 
   // Reset state when exercise changes
@@ -23,6 +24,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCorrect(false);
+    setShowCorrectAnimation(false);
   }, [exercise.id, exercise]);
 
   const handleOptionSelect = (option: string) => {
@@ -37,8 +39,17 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setIsCorrect(correct);
     setIsSubmitted(true);
     
-    // Call onComplete immediately instead of using setTimeout
-    onComplete(correct);
+    if (correct) {
+      setShowCorrectAnimation(true);
+      setTimeout(() => {
+        setShowCorrectAnimation(false);
+      }, 1000);
+    }
+    
+    // Call onComplete after a delay to show the results
+    setTimeout(() => {
+      onComplete(correct);
+    }, 1500);
   };
 
   const speakText = (text: string) => {
@@ -77,7 +88,32 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-6 dark:bg-gray-800 dark:text-gray-100">
+    <div className={cn(
+      "max-w-md mx-auto rounded-xl shadow-sm p-6 dark:text-gray-100 transition-all relative",
+      isSubmitted && isCorrect ? "correct-answer" : 
+      isSubmitted && !isCorrect ? "wrong-answer" : 
+      "bg-white dark:bg-gray-800 border border-primary/10"
+    )}>
+      {/* Stars animation on correct answer */}
+      {showCorrectAnimation && (
+        <div className="reward-animation">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <Star 
+              key={i} 
+              className={`absolute text-yellow-400 animate-bounce`}
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                animationDuration: `${0.5 + Math.random() * 0.5}s`,
+                width: `${10 + Math.random() * 20}px`,
+                height: `${10 + Math.random() * 20}px`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       <h3 className="text-lg font-semibold mb-4">
         {exercise.instructions}
       </h3>
@@ -86,7 +122,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
       <div className="mb-6">
         {exercise.type === 'match' && (
           <div className="flex items-center justify-center gap-3">
-            <div className="text-center font-arabic text-5xl">
+            <div className="text-center font-arabic text-5xl animate-pulse-slow">
               {exercise.content.question}
             </div>
             <Button 
@@ -121,12 +157,12 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
             disabled={isSubmitted}
             className={cn(
               "p-4 border rounded-lg text-center transition-all dark:border-gray-600",
-              selectedOption === option && !isSubmitted && "border-primary bg-primary/5 dark:bg-primary/10",
+              selectedOption === option && !isSubmitted && "border-primary bg-primary/5 dark:bg-primary/10 transform scale-105",
               isSubmitted && selectedOption === option && isCorrect && "border-green-500 bg-green-50 dark:bg-green-900/20",
               isSubmitted && selectedOption === option && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-900/20",
               // Always highlight the correct answer when submitted
               isSubmitted && option === exercise.content.correctAnswer && "border-green-500 bg-green-50 dark:bg-green-900/20",
-              isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+              isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95"
             )}
           >
             <div className="flex items-center justify-center gap-3">
@@ -161,9 +197,9 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
               {isSubmitted && selectedOption === option && (
                 <span className="inline-flex">
                   {isCorrect ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-6 w-6 text-green-500 animate-bounce" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
+                    <XCircle className="h-6 w-6 text-red-500" />
                   )}
                 </span>
               )}
@@ -171,7 +207,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
               {/* Always show correct icon for the correct answer when submitted */}
               {isSubmitted && option === exercise.content.correctAnswer && option !== selectedOption && (
                 <span className="inline-flex">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-6 w-6 text-green-500" />
                 </span>
               )}
             </div>
@@ -186,11 +222,11 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
           className={cn(
             "w-full py-3 px-4 rounded-lg font-medium text-white transition-all",
             selectedOption && !isSubmitted 
-              ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80" 
+              ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:shadow-md hover:scale-105 active:scale-95" 
               : "bg-gray-300 cursor-not-allowed dark:bg-gray-600"
           )}
         >
-          {isSubmitted ? (isCorrect ? "Correct!" : "Try again next time") : "Check"}
+          {isSubmitted ? (isCorrect ? "Correct! ✨" : "Try again next time") : "Check"}
         </button>
       </div>
     </div>

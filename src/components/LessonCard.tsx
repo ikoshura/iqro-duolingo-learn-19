@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Lesson } from '../data/lessonData';
-import { Clock, Award, Lock } from 'lucide-react';
+import { Clock, Award, Lock, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import RewardBadge from './game/RewardBadge';
 
 interface LessonCardProps {
   lesson: Lesson;
@@ -24,6 +25,14 @@ const LessonCard: React.FC<LessonCardProps> = ({
   const isPerfect = accuracy === 100;
   const isPartiallyCompleted = isCompleted && !isPerfect;
 
+  // Determine badge type based on accuracy
+  const getBadgeType = () => {
+    if (accuracy >= 100) return 'perfect';
+    if (accuracy >= 80) return 'gold';
+    if (accuracy >= 60) return 'silver';
+    return 'bronze';
+  };
+
   const handleClick = () => {
     if (isUnlocked) {
       navigate(`/lesson/${lesson.id}`);
@@ -34,12 +43,12 @@ const LessonCard: React.FC<LessonCardProps> = ({
     <div
       onClick={handleClick}
       className={cn(
-        "border rounded-lg overflow-hidden transition-all duration-200",
+        "game-card border-2 transition-all duration-300",
         isUnlocked
-          ? "cursor-pointer hover:shadow-md hover:-translate-y-1 border-primary/20 bg-white dark:bg-gray-900"
+          ? "cursor-pointer hover:-translate-y-2 border-primary/20 bg-white dark:bg-gray-900"
           : "opacity-70 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700",
-        isCompleted && isPerfect && "border-green-200 bg-green-50 dark:bg-green-950",
-        isPartiallyCompleted && "border-amber-200 bg-amber-50 dark:bg-amber-950/30" // Yellow for partial completion
+        isCompleted && isPerfect && "border-green-400 bg-green-50 dark:bg-green-950/30",
+        isPartiallyCompleted && "border-amber-400 bg-amber-50 dark:bg-amber-950/30" // Yellow for partial completion
       )}
     >
       <div className="p-4">
@@ -53,19 +62,17 @@ const LessonCard: React.FC<LessonCardProps> = ({
           </h3>
 
           {!isUnlocked && (
-            <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+            <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full">
+              <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+            </div>
           )}
 
           {isCompleted && (
-            <div className={cn(
-              "flex items-center justify-center rounded-full p-1",
-              isPerfect ? "bg-green-100 dark:bg-green-800" : "bg-amber-100 dark:bg-amber-800"
-            )}>
-              <Award className={cn(
-                "h-4 w-4", 
-                isPerfect ? "text-green-600 dark:text-green-300" : "text-amber-600 dark:text-amber-300"
-              )} />
-            </div>
+            <RewardBadge 
+              type={getBadgeType()} 
+              size="sm" 
+              animate={isPerfect} 
+            />
           )}
         </div>
 
@@ -84,11 +91,13 @@ const LessonCard: React.FC<LessonCardProps> = ({
                 Accuracy: {accuracy}%
               </span>
             </div>
-            <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="progress-bar">
               <div 
                 className={cn(
-                  "h-full rounded-full",
-                  isPerfect ? "bg-green-500" : "bg-amber-500"
+                  "progress-value",
+                  isPerfect 
+                    ? "from-green-400 to-green-600" 
+                    : "from-amber-400 to-amber-600"
                 )}
                 style={{ width: `${accuracy}%` }}
               />
@@ -102,12 +111,13 @@ const LessonCard: React.FC<LessonCardProps> = ({
             <span>{duration}</span>
           </div>
           <div className="flex items-center gap-1 font-medium">
+            <Star className="h-3 w-3 text-yellow-500" />
             <span>{xpReward} XP</span>
           </div>
         </div>
       </div>
 
-      <div className="flex border-t border-gray-100 dark:border-gray-700 divide-x divide-gray-100 dark:divide-gray-700">
+      <div className="flex border-t border-gray-100 dark:border-gray-700 divide-x divide-gray-100 dark:divide-gray-700 bg-gray-50 dark:bg-gray-800/50">
         {lesson.letters.map((letter) => (
           <div key={letter.id} className="flex-1 p-3 text-center">
             <p className="font-arabic text-2xl mb-1 text-gray-900 dark:text-white">{letter.arabic}</p>

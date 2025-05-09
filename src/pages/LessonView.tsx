@@ -13,6 +13,8 @@ import LessonHeader from '../components/lesson/LessonHeader';
 import LessonProgress from '../components/lesson/LessonProgress';
 import LessonExerciseContainer from '../components/lesson/LessonExerciseContainer';
 import CompletionScreen from '../components/lesson/CompletionScreen';
+import CharacterGuide from '../components/game/CharacterGuide';
+import Confetti from '../components/game/Confetti';
 
 const LessonView: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -21,6 +23,7 @@ const LessonView: React.FC = () => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [exerciseResults, setExerciseResults] = useState<boolean[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -31,6 +34,7 @@ const LessonView: React.FC = () => {
     setCurrentExerciseIndex(0);
     setExerciseResults([]);
     setIsCompleted(false);
+    setShowConfetti(false);
   }, [lessonId]);
 
   // Add debugging logs to track exercise completion
@@ -71,6 +75,15 @@ const LessonView: React.FC = () => {
     newResults[currentExerciseIndex] = isCorrect;
     setExerciseResults(newResults);
     
+    // Show encouragement toast based on result
+    if (isCorrect) {
+      toast({
+        title: "Excellent! ✨",
+        description: "You got it right!",
+        variant: "default",
+      });
+    }
+    
     // If this is the last exercise, complete the lesson
     if (currentExerciseIndex === lesson.exercises.length - 1) {
       setIsCompleted(true);
@@ -79,6 +92,9 @@ const LessonView: React.FC = () => {
       const totalQuestions = lesson.exercises.length;
       const correctAnswers = [...newResults, isCorrect].filter(result => result === true).length;
       const accuracy = Math.min(100, Math.round((correctAnswers / totalQuestions) * 100));
+      
+      // Show confetti for completion
+      setShowConfetti(true);
       
       // Pass the accuracy to the completeLesson function
       completeLesson(lesson.id, lesson.xpReward, accuracy);
@@ -93,6 +109,7 @@ const LessonView: React.FC = () => {
     setCurrentExerciseIndex(0);
     setExerciseResults([]);
     setIsCompleted(false);
+    setShowConfetti(false);
   };
 
   // Handle continuing to next lesson
@@ -105,6 +122,50 @@ const LessonView: React.FC = () => {
     } else {
       navigate('/lessons');
     }
+  };
+
+  // Determine character emotion based on progress
+  const getCharacterEmotion = () => {
+    if (isCompleted) {
+      // Check performance
+      const correctAnswers = exerciseResults.filter(result => result === true).length;
+      const accuracy = Math.round((correctAnswers / lesson.exercises.length) * 100);
+      
+      if (accuracy >= 100) return 'celebrating';
+      if (accuracy >= 70) return 'happy';
+      return 'thinking';
+    }
+    
+    // During lesson
+    if (currentExerciseIndex === 0) return 'explaining';
+    
+    // Default
+    return 'happy';
+  };
+
+  // Determine character message based on progress
+  const getCharacterMessage = () => {
+    if (isCompleted) {
+      // Check performance
+      const correctAnswers = exerciseResults.filter(result => result === true).length;
+      const accuracy = Math.round((correctAnswers / lesson.exercises.length) * 100);
+      
+      if (accuracy >= 100) return "Fantastic job! You've mastered this lesson!";
+      if (accuracy >= 70) return "Good work! Keep practicing to get even better!";
+      return "Don't worry, learning takes time. Let's try again!";
+    }
+    
+    // During lesson
+    if (currentExerciseIndex === 0) {
+      return `Welcome to learning ${lesson.title}! Let's get started!`;
+    }
+    
+    if (exerciseResults[currentExerciseIndex - 1]) {
+      return "Great job! Let's continue!";
+    }
+    
+    // Default
+    return "You can do this! Keep going!";
   };
 
   // Get the current exercise
@@ -146,6 +207,12 @@ const LessonView: React.FC = () => {
           {/* Lesson header */}
           <LessonHeader title={lesson.title} />
           
+          {/* Character guide */}
+          <CharacterGuide 
+            emotion={getCharacterEmotion()} 
+            message={getCharacterMessage()}
+          />
+          
           {/* Progress bar */}
           {!isCompleted && (
             <LessonProgress
@@ -176,6 +243,9 @@ const LessonView: React.FC = () => {
         </div>
       </main>
       <Footer currentPage="Lessons" />
+      
+      {/* Confetti effect on completion */}
+      <Confetti active={showConfetti} duration={5000} />
     </div>
   );
 };
