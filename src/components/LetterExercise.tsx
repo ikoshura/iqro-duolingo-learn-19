@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Exercise } from '../data/lessonData';
 import { CheckCircle, XCircle, Volume2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { useLanguage } from '../context/LanguageContext';
+import { gsap } from 'gsap';
 
 interface LetterExerciseProps {
   exercise: Exercise;
@@ -19,17 +20,81 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   const [showCorrectAnimation, setShowCorrectAnimation] = useState(false);
   const { t } = useLanguage();
 
+  // Refs for animations
+  const containerRef = useRef<HTMLDivElement>(null);
+  const optionsContainerRef = useRef<HTMLDivElement>(null);
+  const questionRef = useRef<HTMLDivElement>(null);
+  const starsContainerRef = useRef<HTMLDivElement>(null);
+  
   // Reset state when exercise changes
   useEffect(() => {
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCorrect(false);
     setShowCorrectAnimation(false);
+    
+    // Entry animation for the whole exercise
+    if (containerRef.current) {
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      );
+    }
+    
+    // Question animation
+    if (questionRef.current) {
+      gsap.fromTo(
+        questionRef.current,
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 0.7, delay: 0.1, ease: "back.out(1.2)" }
+      );
+    }
+    
+    // Options animation - staggered entry
+    if (optionsContainerRef.current) {
+      const options = optionsContainerRef.current.querySelectorAll('.option-button');
+      gsap.fromTo(
+        options,
+        { opacity: 0, x: -20 },
+        { 
+          opacity: 1, 
+          x: 0, 
+          duration: 0.5, 
+          stagger: 0.1,
+          delay: 0.3,
+          ease: "power2.out"
+        }
+      );
+    }
   }, [exercise.id, exercise]);
 
   const handleOptionSelect = (option: string) => {
     if (isSubmitted) return;
+    
     setSelectedOption(option);
+    
+    // Animate the selected option
+    const selectedElement = document.querySelector(`[data-option="${option}"]`);
+    if (selectedElement) {
+      gsap.to(selectedElement, {
+        scale: 1.05,
+        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+        borderColor: 'rgb(79, 70, 229)',
+        duration: 0.2
+      });
+      
+      // Reset scale for other options
+      const otherOptions = Array.from(document.querySelectorAll('.option-button')).filter(
+        el => el !== selectedElement
+      );
+      gsap.to(otherOptions, {
+        scale: 1,
+        backgroundColor: 'transparent',
+        borderColor: 'rgba(209, 213, 219, 1)',
+        duration: 0.2
+      });
+    }
   };
 
   const handleSubmit = () => {
@@ -39,11 +104,68 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
     setIsCorrect(correct);
     setIsSubmitted(true);
     
+    // Animate the result
     if (correct) {
       setShowCorrectAnimation(true);
-      setTimeout(() => {
-        setShowCorrectAnimation(false);
-      }, 1000);
+      
+      // Correct answer animations
+      if (containerRef.current) {
+        // Flash effect
+        gsap.fromTo(
+          containerRef.current,
+          { boxShadow: "0 0 0 0px rgba(34, 197, 94, 0)" },
+          { 
+            boxShadow: "0 0 0 6px rgba(34, 197, 94, 0.2)", 
+            duration: 0.5,
+            yoyo: true,
+            repeat: 1 
+          }
+        );
+      }
+      
+      // Create star animation
+      if (starsContainerRef.current) {
+        for (let i = 0; i < 10; i++) {
+          const star = document.createElement('div');
+          star.className = 'absolute text-yellow-400';
+          star.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+          star.style.top = `${Math.random() * 100}%`;
+          star.style.left = `${Math.random() * 100}%`;
+          starsContainerRef.current.appendChild(star);
+          
+          gsap.to(star, {
+            y: -100 - Math.random() * 100,
+            x: Math.random() * 100 - 50,
+            rotation: Math.random() * 360,
+            opacity: 0,
+            duration: 1 + Math.random(),
+            onComplete: () => {
+              if (starsContainerRef.current?.contains(star)) {
+                starsContainerRef.current.removeChild(star);
+              }
+            }
+          });
+        }
+      }
+    } else {
+      // Incorrect answer animation
+      if (containerRef.current) {
+        gsap.to(containerRef.current, {
+          x: [-5, 5, -5, 5, 0],
+          duration: 0.4,
+          ease: "power1.inOut"
+        });
+      }
+    }
+    
+    // Highlight correct answer
+    const correctElement = document.querySelector(`[data-option="${exercise.content.correctAnswer}"]`);
+    if (correctElement) {
+      gsap.to(correctElement, {
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        borderColor: 'rgb(34, 197, 94)',
+        duration: 0.3
+      });
     }
     
     // Call onComplete after a delay to show the results
@@ -69,7 +191,18 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
         utterance.voice = arabicVoice;
       }
       
-      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        // Animate the speech button
+        const speechButtons = document.querySelectorAll('.speech-button');
+        gsap.to(speechButtons, {
+          scale: 1.2,
+          color: 'rgb(79, 70, 229)',
+          duration: 0.3,
+          yoyo: true,
+          repeat: 3
+        });
+      };
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
       
@@ -88,47 +221,33 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
   }
 
   return (
-    <div className={cn(
-      "max-w-md mx-auto rounded-xl shadow-sm p-6 dark:text-gray-100 transition-all relative",
-      isSubmitted && isCorrect ? "correct-answer" : 
-      isSubmitted && !isCorrect ? "wrong-answer" : 
-      "bg-white dark:bg-gray-800 border border-primary/10"
-    )}>
-      {/* Stars animation on correct answer */}
-      {showCorrectAnimation && (
-        <div className="reward-animation">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Star 
-              key={i} 
-              className={`absolute text-yellow-400 animate-bounce`}
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 0.5}s`,
-                animationDuration: `${0.5 + Math.random() * 0.5}s`,
-                width: `${10 + Math.random() * 20}px`,
-                height: `${10 + Math.random() * 20}px`,
-              }}
-            />
-          ))}
-        </div>
+    <div 
+      ref={containerRef}
+      className={cn(
+        "max-w-md mx-auto rounded-xl shadow-sm p-6 dark:text-gray-100 transition-all relative",
+        isSubmitted && isCorrect ? "correct-answer" : 
+        isSubmitted && !isCorrect ? "wrong-answer" : 
+        "bg-white dark:bg-gray-800 border border-primary/10"
       )}
-
+    >
+      {/* Container for star animations */}
+      <div ref={starsContainerRef} className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none"></div>
+      
       <h3 className="text-lg font-semibold mb-4">
         {exercise.instructions}
       </h3>
       
       {/* Question display with speech button */}
-      <div className="mb-6">
+      <div className="mb-6" ref={questionRef}>
         {exercise.type === 'match' && (
           <div className="flex items-center justify-center gap-3">
-            <div className="text-center font-arabic text-5xl animate-pulse-slow">
+            <div className="text-center font-arabic text-5xl">
               {exercise.content.question}
             </div>
             <Button 
               variant="outline" 
               size="icon" 
-              className="rounded-full"
+              className="rounded-full speech-button"
               onClick={() => speakText(exercise.content.question)}
               disabled={isSpeaking}
             >
@@ -148,21 +267,17 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
         )}
       </div>
       
-      {/* Options - Modified to always show the correct answer after submission */}
-      <div className="grid grid-cols-1 gap-3 mb-6">
+      {/* Options */}
+      <div ref={optionsContainerRef} className="grid grid-cols-1 gap-3 mb-6">
         {exercise.content.options?.map((option) => (
           <button
             key={option}
+            data-option={option}
             onClick={() => handleOptionSelect(option)}
             disabled={isSubmitted}
             className={cn(
-              "p-4 border rounded-lg text-center transition-all dark:border-gray-600",
-              selectedOption === option && !isSubmitted && "border-primary bg-primary/5 dark:bg-primary/10 transform scale-105",
-              isSubmitted && selectedOption === option && isCorrect && "border-green-500 bg-green-50 dark:bg-green-900/20",
-              isSubmitted && selectedOption === option && !isCorrect && "border-red-500 bg-red-50 dark:bg-red-900/20",
-              // Always highlight the correct answer when submitted
-              isSubmitted && option === exercise.content.correctAnswer && "border-green-500 bg-green-50 dark:bg-green-900/20",
-              isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95"
+              "option-button p-4 border rounded-lg text-center transition-all dark:border-gray-600",
+              isSubmitted ? "cursor-default" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
             )}
           >
             <div className="flex items-center justify-center gap-3">
@@ -178,7 +293,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="rounded-full h-8 w-8"
+                  className="rounded-full h-8 w-8 speech-button"
                   onClick={(e) => {
                     e.stopPropagation();
                     speakText(option);
@@ -197,7 +312,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
               {isSubmitted && selectedOption === option && (
                 <span className="inline-flex">
                   {isCorrect ? (
-                    <CheckCircle className="h-6 w-6 text-green-500 animate-bounce" />
+                    <CheckCircle className="h-6 w-6 text-green-500" />
                   ) : (
                     <XCircle className="h-6 w-6 text-red-500" />
                   )}
@@ -222,7 +337,7 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
           className={cn(
             "w-full py-3 px-4 rounded-lg font-medium text-white transition-all",
             selectedOption && !isSubmitted 
-              ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:shadow-md hover:scale-105 active:scale-95" 
+              ? "bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:shadow-md" 
               : "bg-gray-300 cursor-not-allowed dark:bg-gray-600"
           )}
         >

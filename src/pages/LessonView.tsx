@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { lessons } from '../data/lessonData';
@@ -7,6 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '../context/LanguageContext';
+import { gsap } from 'gsap';
 
 // Import refactored components
 import LessonHeader from '../components/lesson/LessonHeader';
@@ -27,7 +27,22 @@ const LessonView: React.FC = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
 
+  // Refs for GSAP animations
+  const mainContainerRef = useRef<HTMLDivElement>(null);
+  const lessonContainerRef = useRef<HTMLDivElement>(null);
+  
   const lesson = lessons.find((l) => l.id === lessonId);
+
+  // Page animation on mount
+  useEffect(() => {
+    if (mainContainerRef.current) {
+      gsap.fromTo(
+        mainContainerRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5, ease: "power1.out" }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     // Reset state when navigating to a new lesson
@@ -35,6 +50,15 @@ const LessonView: React.FC = () => {
     setExerciseResults([]);
     setIsCompleted(false);
     setShowConfetti(false);
+    
+    // Animate the lesson container when lesson changes
+    if (lessonContainerRef.current) {
+      gsap.fromTo(
+        lessonContainerRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      );
+    }
   }, [lessonId]);
 
   // Add debugging logs to track exercise completion
@@ -99,17 +123,58 @@ const LessonView: React.FC = () => {
       // Pass the accuracy to the completeLesson function
       completeLesson(lesson.id, lesson.xpReward, accuracy);
     } else {
-      // Otherwise, move to the next exercise
-      setCurrentExerciseIndex(currentExerciseIndex + 1);
+      // Otherwise, move to the next exercise with animation
+      if (lessonContainerRef.current) {
+        const exerciseElement = lessonContainerRef.current.querySelector('.exercise-container');
+        
+        gsap.to(exerciseElement, {
+          opacity: 0,
+          y: -20,
+          duration: 0.3,
+          onComplete: () => {
+            setCurrentExerciseIndex(currentExerciseIndex + 1);
+            gsap.fromTo(
+              exerciseElement,
+              { opacity: 0, y: 20 },
+              { opacity: 1, y: 0, duration: 0.4, ease: "power1.out" }
+            );
+          }
+        });
+      } else {
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+      }
     }
   };
 
   // Handle retrying the lesson
   const handleRetryLesson = () => {
-    setCurrentExerciseIndex(0);
-    setExerciseResults([]);
-    setIsCompleted(false);
-    setShowConfetti(false);
+    // Animate out current content
+    if (lessonContainerRef.current) {
+      gsap.to(lessonContainerRef.current, {
+        opacity: 0,
+        y: 20,
+        duration: 0.4,
+        onComplete: () => {
+          setCurrentExerciseIndex(0);
+          setExerciseResults([]);
+          setIsCompleted(false);
+          setShowConfetti(false);
+          
+          // Animate back in
+          gsap.to(lessonContainerRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            delay: 0.1
+          });
+        }
+      });
+    } else {
+      setCurrentExerciseIndex(0);
+      setExerciseResults([]);
+      setIsCompleted(false);
+      setShowConfetti(false);
+    }
   };
 
   // Handle continuing to next lesson
@@ -117,10 +182,26 @@ const LessonView: React.FC = () => {
     const nextLessonNum = parseInt(lesson.id.split('-')[1]) + 1;
     const nextLessonId = `lesson-${nextLessonNum}`;
     const nextLesson = lessons.find((l) => l.id === nextLessonId);
-    if (nextLesson) {
-      navigate(`/lesson/${nextLessonId}`);
+    
+    // Animate out current content
+    if (mainContainerRef.current) {
+      gsap.to(mainContainerRef.current, {
+        opacity: 0,
+        duration: 0.4,
+        onComplete: () => {
+          if (nextLesson) {
+            navigate(`/lesson/${nextLessonId}`);
+          } else {
+            navigate('/lessons');
+          }
+        }
+      });
     } else {
-      navigate('/lessons');
+      if (nextLesson) {
+        navigate(`/lesson/${nextLessonId}`);
+      } else {
+        navigate('/lessons');
+      }
     }
   };
 
@@ -200,10 +281,10 @@ const LessonView: React.FC = () => {
   const performance = getPerformanceReview();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pattern-bg flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pattern-bg flex flex-col" ref={mainContainerRef}>
       <Header />
       <main className="flex-1 pb-20">
-        <div className="container mx-auto px-4 py-6 mb-16">
+        <div className="container mx-auto px-4 py-6 mb-16" ref={lessonContainerRef}>
           {/* Lesson header */}
           <LessonHeader title={lesson.title} />
           
@@ -223,11 +304,13 @@ const LessonView: React.FC = () => {
 
           {!isCompleted ? (
             /* Exercise */
-            <LessonExerciseContainer 
-              currentExercise={currentExercise}
-              exerciseIndex={currentExerciseIndex}
-              onComplete={handleExerciseComplete}
-            />
+            <div className="exercise-container">
+              <LessonExerciseContainer 
+                currentExercise={currentExercise}
+                exerciseIndex={currentExerciseIndex}
+                onComplete={handleExerciseComplete}
+              />
+            </div>
           ) : (
             /* Lesson completed screen with detailed review */
             performance && (

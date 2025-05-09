@@ -1,5 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { gsap } from 'gsap';
 
 interface ConfettiProps {
   active: boolean;
@@ -8,10 +9,58 @@ interface ConfettiProps {
 
 const Confetti: React.FC<ConfettiProps> = ({ active, duration = 3000 }) => {
   const [isActive, setIsActive] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const confettiCount = 50;
+  
+  // Generate confetti data once
+  const confettiData = Array.from({ length: confettiCount }, () => ({
+    size: Math.random() * 10 + 5,
+    color: [
+      '#8B5CF6', // purple
+      '#0EA5E9', // blue
+      '#10B981', // green
+      '#F97316', // orange
+      '#F43F5E', // pink
+    ][Math.floor(Math.random() * 5)],
+    x: Math.random() * 100,
+    rotation: Math.random() * 360,
+    delay: Math.random() * 0.5,
+  }));
 
   useEffect(() => {
     if (active) {
       setIsActive(true);
+      
+      // Create confetti animation when active changes to true
+      if (containerRef.current) {
+        const pieces = containerRef.current.querySelectorAll('.confetti-piece');
+        
+        // Clear any existing animations
+        gsap.killTweensOf(pieces);
+        
+        // Reset positions
+        gsap.set(pieces, { 
+          y: -20,
+          opacity: 1,
+          scale: 1,
+        });
+        
+        // Animate each piece
+        pieces.forEach((piece, i) => {
+          const xMovement = -50 + Math.random() * 100; // Random horizontal movement
+          
+          gsap.to(piece, {
+            y: window.innerHeight + 100,
+            x: `+=${xMovement}`,
+            rotation: `+=${Math.random() * 720 - 360}`,
+            opacity: 0,
+            scale: Math.random() * 0.5 + 0.5,
+            duration: 2 + Math.random() * 2,
+            ease: "power1.out",
+            delay: Math.random() * 0.5,
+          });
+        });
+      }
       
       // Auto-disable after duration
       const timer = setTimeout(() => {
@@ -24,34 +73,22 @@ const Confetti: React.FC<ConfettiProps> = ({ active, duration = 3000 }) => {
 
   if (!isActive) return null;
 
-  // Generate random confetti pieces
-  const confettiPieces = Array.from({ length: 50 }, (_, i) => {
-    const size = Math.random() * 10 + 5;
-    const color = [
-      '#8B5CF6', // purple
-      '#0EA5E9', // blue
-      '#10B981', // green
-      '#F97316', // orange
-      '#F43F5E', // pink
-    ][Math.floor(Math.random() * 5)];
-    
-    const left = `${Math.random() * 100}%`;
-    const animationDelay = `${Math.random() * 3}s`;
-    
-    const style = {
-      width: `${size}px`,
-      height: `${size}px`,
-      backgroundColor: color,
-      left,
-      animationDelay,
-    };
-
-    return <div key={i} className="confetti-piece" style={style} />;
-  });
-
   return (
-    <div className="confetti-container">
-      {confettiPieces}
+    <div className="confetti-container" ref={containerRef}>
+      {confettiData.map((data, i) => (
+        <div
+          key={i}
+          className="confetti-piece absolute"
+          style={{
+            width: `${data.size}px`,
+            height: `${data.size}px`,
+            backgroundColor: data.color,
+            left: `${data.x}%`,
+            top: -20,
+            borderRadius: '50%',
+          }}
+        />
+      ))}
       <style>
         {`
         .confetti-container {
@@ -63,24 +100,6 @@ const Confetti: React.FC<ConfettiProps> = ({ active, duration = 3000 }) => {
           pointer-events: none;
           z-index: 9999;
           overflow: hidden;
-        }
-        .confetti-piece {
-          position: absolute;
-          top: -20px;
-          border-radius: 50%;
-          animation: fall 3s linear forwards;
-        }
-        @keyframes fall {
-          0% {
-            opacity: 1;
-            top: -20px;
-            transform: translateX(0) rotate(0deg);
-          }
-          100% {
-            opacity: 0;
-            top: 100vh;
-            transform: translateX(100px) rotate(360deg);
-          }
         }
         `}
       </style>
