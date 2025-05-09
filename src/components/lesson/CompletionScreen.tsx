@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, AlertTriangle, CheckCircle2, RefreshCcw, ArrowRight } from 'lucide-react';
@@ -86,7 +85,10 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({
           duration: 1.5,
           ease: "power1.out",
           onUpdate: function() {
-            xpElement.textContent = Math.round(gsap.getProperty(this.targets()[0], "textContent")) + " XP";
+            // Fix: Convert to number before rounding
+            const textContent = gsap.getProperty(this.targets()[0], "textContent");
+            const numericValue = typeof textContent === 'string' ? parseFloat(textContent) : Number(textContent);
+            xpElement.textContent = Math.round(numericValue) + " XP";
           }
         }, "-=0.2");
       }

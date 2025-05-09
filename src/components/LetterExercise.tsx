@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Exercise } from '../data/lessonData';
 import { CheckCircle, XCircle, Volume2, Star } from 'lucide-react';
@@ -151,7 +150,14 @@ const LetterExercise: React.FC<LetterExerciseProps> = ({ exercise, onComplete })
       // Incorrect answer animation
       if (containerRef.current) {
         gsap.to(containerRef.current, {
-          x: [-5, 5, -5, 5, 0],
+          x: 0, // Start with 0
+          keyframes: [
+            { x: -5, duration: 0.1 },
+            { x: 5, duration: 0.1 },
+            { x: -5, duration: 0.1 },
+            { x: 5, duration: 0.1 },
+            { x: 0, duration: 0.1 },
+          ],
           duration: 0.4,
           ease: "power1.inOut"
         });
