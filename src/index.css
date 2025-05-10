@@ -55,7 +55,7 @@
     --primary-foreground: 222.2 47.4% 11.2%;
 
     /* Enhanced secondary in dark mode */
-    --secondary: 199 94% 48%;
+    --secondary: 199 94% 52%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 240 8% 20%;
@@ -244,4 +244,35 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #525280;
+}
+
+/* Duolingo-like colors */
+.duolingo-green {
+  @apply bg-[#58CC02] text-white hover:bg-[#46a302];
+}
+
+.duolingo-purple {
+  @apply bg-[#8549ba] text-white hover:bg-[#73389f];
+}
+
+.duolingo-red {
+  @apply bg-[#ff4b4b] text-white hover:bg-[#e03838];
+}
+
+.duolingo-blue {
+  @apply bg-[#1cb0f6] text-white hover:bg-[#0095d9];
+}
+
+/* Playful border and shadow styles */
+.playful-border {
+  @apply border-2 border-[#84D8FF] hover:border-[#58CC02] transition-colors duration-300;
+}
+
+.playful-shadow {
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Playful button styles */
+.playful-button {
+  @apply rounded-xl py-3 px-5 font-bold uppercase tracking-wide duolingo-green playful-shadow transform transition-all duration-200 hover:scale-105 active:scale-95 active:shadow-none;
 }
