@@ -1,8 +1,7 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, BookOpen, Dumbbell, Trophy, User } from 'lucide-react';
-import { gsap } from 'gsap';
 
 interface FooterProps {
   currentPage: string;
@@ -23,23 +22,6 @@ const Footer: React.FC<FooterProps> = ({ currentPage }) => {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-
-  useEffect(() => {
-    // Animation for the active navigation item
-    const activeItem = document.querySelector('.nav-item.active');
-    if (activeItem) {
-      gsap.fromTo(
-        activeItem,
-        { scale: 0.9, opacity: 0.8 },
-        { 
-          scale: 1, 
-          opacity: 1,
-          duration: 0.4,
-          ease: 'back.out(1.7)'
-        }
-      );
-    }
-  }, [currentPage]);
   
   return (
     <footer className="fixed bottom-0 left-0 w-full footer-nav shadow-lg z-10">
@@ -48,9 +30,9 @@ const Footer: React.FC<FooterProps> = ({ currentPage }) => {
           <button
             key={item.name}
             onClick={() => navigate(item.path)}
-            className={`nav-item flex flex-col items-center justify-center w-full h-full transition-colors ${
+            className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
               isActive(item.path) 
-                ? 'text-primary active' 
+                ? 'text-primary' 
                 : 'text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-foreground'
             }`}
           >

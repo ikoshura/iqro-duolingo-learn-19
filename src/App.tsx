@@ -7,8 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import { ThemeProvider } from "./context/ThemeProvider";
 import { LanguageProvider } from "./context/LanguageContext";
-import ResponsiveNavigation from "./components/ResponsiveNavigation";
-import Header from "./components/Header";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
@@ -21,45 +19,8 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
 import PracticeLesson from "./pages/PracticeLesson";
-import { useIsMobile } from "./hooks/use-mobile";
-import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
-
-const AppContent = () => {
-  const isMobile = useIsMobile();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  return (
-    <>
-      <Header />
-      <div className={`${isMobile ? "pb-16" : ""} min-h-screen`}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/landing" element={<Landing />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/lessons" element={<Lessons />} />
-          <Route path="/practice" element={<Practice />} />
-          <Route path="/practice/:practiceId" element={<PracticeLesson />} />
-          <Route path="/achievements" element={<Achievements />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/lesson/:lessonId" element={<LessonView />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-      <ResponsiveNavigation />
-    </>
-  );
-};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -70,7 +31,21 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <AppContent />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/landing" element={<Landing />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/lessons" element={<Lessons />} />
+                <Route path="/practice" element={<Practice />} />
+                <Route path="/practice/:practiceId" element={<PracticeLesson />} />
+                <Route path="/achievements" element={<Achievements />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/lesson/:lessonId" element={<LessonView />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </BrowserRouter>
           </UserProvider>
         </LanguageProvider>
